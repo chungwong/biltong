@@ -192,7 +192,7 @@ pub fn CutDiagram() -> Element {
                                 x: "{c.lx}",
                                 y: "{c.ly}",
                                 text_anchor: "middle",
-                                font_size: "6.6",
+                                font_size: "9",
                                 font_weight: "bold",
                                 fill: "#2a1a0a",
                                 pointer_events: "none",
