@@ -401,6 +401,11 @@ fn CureArt() -> Element {
             }
             line { x1: "146", y1: "70", x2: "164", y2: "70", stroke: "#a85a32", stroke_width: "3",
                 stroke_linecap: "round" }
+            // cure time, under the clock
+            text { x: "146", y: "120", text_anchor: "middle", font_size: "12", font_weight: "bold",
+                fill: "#4a1505", "24–36 hrs" }
+            text { x: "146", y: "132", text_anchor: "middle", font_size: "8", fill: "#7c2d12",
+                "flip every 12 h" }
         }
     }
 }
@@ -469,24 +474,40 @@ fn DryArt() -> Element {
     }
 }
 
-/// Step 8 — the finished biltong, sliced and fanned out.
+/// Step 8 — the finished biltong: whole sticks on a board, sliced and fanned out so the
+/// dark rim and red interior of each slice show.
 #[component]
 fn DoneArt() -> Element {
     rsx! {
         ArtFrame {
-            // plate
-            ellipse { cx: "100", cy: "104", rx: "76", ry: "14", fill: "#d8a47f" }
-            // fanned slices (animated in, staggered)
-            for (i , x) in [62.0_f64, 80.0, 98.0, 116.0, 134.0].into_iter().enumerate() {
-                g { key: "{i}", class: "anim-fan-in", style: "animation-delay: {i as f64 * 0.15}s",
-                    ellipse { cx: "{x}", cy: "78", rx: "13", ry: "20", fill: "#7c2d12",
-                        transform: "rotate({(i as f64 - 2.0) * 8.0} {x} 78)" }
-                    ellipse { cx: "{x}", cy: "78", rx: "7", ry: "13", fill: "#a85a32", opacity: "0.5",
-                        transform: "rotate({(i as f64 - 2.0) * 8.0} {x} 78)" }
+            // serving board
+            ellipse { cx: "100", cy: "106", rx: "80", ry: "15", fill: "#caa079" }
+            ellipse { cx: "100", cy: "103", rx: "80", ry: "15", fill: "#d8a47f" }
+            // whole biltong sticks at the back
+            for (i , (x , rot , col)) in [
+                (70.0_f64, -8.0_f64, "#6b2410"),
+                (100.0, -2.0, "#7c2d12"),
+                (128.0, 6.0, "#6b2410"),
+            ]
+                .into_iter()
+                .enumerate()
+            {
+                g { key: "stick{i}", transform: "rotate({rot} {x} 70)",
+                    rect { x: "{x - 9.0}", y: "44", width: "18", height: "50", rx: "9", fill: "{col}" }
+                    ellipse { cx: "{x}", cy: "60", rx: "5", ry: "9", fill: "#a85a32", opacity: "0.5" }
                 }
             }
-            // gentle shine
-            circle { class: "anim-shine", cx: "100", cy: "60", r: "40", fill: "#fdf6f0" }
+            // sliced biltong fanned in front (animated in, staggered), each showing rim + interior
+            for (i , x) in [58.0_f64, 76.0, 94.0, 112.0, 130.0, 148.0].into_iter().enumerate() {
+                g { key: "slice{i}", class: "anim-fan-in", style: "animation-delay: {i as f64 * 0.12}s",
+                    ellipse { cx: "{x}", cy: "92", rx: "15", ry: "12", fill: "#4a1505",
+                        transform: "rotate({(i as f64 - 2.5) * 7.0} {x} 92)" }
+                    ellipse { cx: "{x}", cy: "92", rx: "10.5", ry: "8", fill: "#9b3a2a",
+                        transform: "rotate({(i as f64 - 2.5) * 7.0} {x} 92)" }
+                    ellipse { cx: "{x - 3.0}", cy: "89", rx: "2.5", ry: "1.6", fill: "#e8c9a0",
+                        opacity: "0.8", transform: "rotate({(i as f64 - 2.5) * 7.0} {x} 92)" }
+                }
+            }
         }
     }
 }
