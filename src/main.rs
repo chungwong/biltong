@@ -24,8 +24,8 @@ fn App() -> Element {
         div { class: "min-h-screen bg-biltong-50 text-stone-800",
             Hero {}
             main {
-                Steps {}
                 Calculator {}
+                Steps {}
             }
             Footer {}
         }

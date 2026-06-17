@@ -29,12 +29,19 @@ impl UnitSystem {
 }
 
 /// One computed row: an ingredient name, its scaled amount (already formatted in the
-/// chosen unit) and an optional note.
+/// chosen unit), plus the bits the chart needs — a short label, a unit-independent
+/// magnitude for bar sizing, and a bar colour.
 #[derive(Clone, PartialEq)]
 pub struct ResultLine {
     pub name: &'static str,
+    pub short: &'static str,
     pub amount: String,
     pub note: &'static str,
+    /// Quantity in base metric units (grams for solids, millilitres for liquids). Used
+    /// only for relative bar sizing, so it is independent of the chosen display unit.
+    pub magnitude: f64,
+    /// Bar colour for the chart (spice amber for solids, red for liquids).
+    pub color: &'static str,
 }
 
 /// Convert a meat-weight input (in the system's meat unit) into grams.
@@ -70,14 +77,23 @@ fn round1(value: f64) -> String {
 }
 
 fn line_for(ing: &Ingredient, meat_grams: f64, system: UnitSystem) -> ResultLine {
-    let amount = match ing.measure {
-        Measure::WeightFraction(fraction) => format_weight(meat_grams * fraction, system),
-        Measure::VolumePerKg(ml_per_kg) => format_volume(meat_grams / 1000.0 * ml_per_kg, system),
+    let (amount, magnitude, color) = match ing.measure {
+        Measure::WeightFraction(fraction) => {
+            let grams = meat_grams * fraction;
+            (format_weight(grams, system), grams, "#b45309")
+        }
+        Measure::VolumePerKg(ml_per_kg) => {
+            let ml = meat_grams / 1000.0 * ml_per_kg;
+            (format_volume(ml, system), ml, "#b91c1c")
+        }
     };
     ResultLine {
         name: ing.name,
+        short: ing.short,
         amount,
         note: ing.note,
+        magnitude,
+        color,
     }
 }
 

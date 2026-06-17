@@ -19,16 +19,16 @@ pub fn Hero() -> Element {
                 }
                 nav { class: "flex flex-wrap gap-3 justify-center",
                     a {
-                        href: "#steps",
+                        href: "#calculator",
                         class: "px-5 py-2.5 rounded-full bg-biltong-50 text-biltong-700 \
                                 font-semibold hover:bg-white transition-colors",
-                        "The steps"
+                        "Recipe calculator"
                     }
                     a {
-                        href: "#calculator",
+                        href: "#steps",
                         class: "px-5 py-2.5 rounded-full border border-biltong-300 \
                                 text-biltong-50 font-semibold hover:bg-biltong-900 transition-colors",
-                        "Recipe calculator"
+                        "The steps"
                     }
                 }
             }
