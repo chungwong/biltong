@@ -15,6 +15,36 @@
       content="Step-by-step biltong guide with an ingredient calculator."
     />
     <meta property="og:type" content="website" />
+    <style>
+      /* Avoid a flash of unstyled content: keep the app hidden until the Tailwind
+         stylesheet (injected by Dioxus after the WASM app boots) has actually applied. */
+      #main {
+        visibility: hidden;
+      }
+      html.app-ready #main {
+        visibility: visible;
+      }
+    </style>
+    <script>
+      // Reveal the app once a Tailwind theme variable resolves (i.e. the stylesheet is
+      // loaded), with a timed fallback so we never hide the page indefinitely.
+      (function () {
+        function styled() {
+          var v = getComputedStyle(document.documentElement).getPropertyValue(
+            "--color-biltong-700"
+          );
+          return v && v.trim() !== "";
+        }
+        var tries = 0;
+        (function check() {
+          if (styled() || tries++ > 600) {
+            document.documentElement.classList.add("app-ready");
+          } else {
+            requestAnimationFrame(check);
+          }
+        })();
+      })();
+    </script>
   </head>
   <body>
     <div id="main"></div>
