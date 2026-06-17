@@ -86,12 +86,11 @@
 }
 
 @keyframes biltong-tick {
-  0%,
-  100% {
+  from {
     transform: rotate(0deg);
   }
-  50% {
-    transform: rotate(180deg);
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -158,9 +157,8 @@
   animation: biltong-drop 2s ease-in infinite;
 }
 .anim-tick {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: biltong-tick 4s steps(12) infinite;
+  /* Pivot is set per-element (the clock centre) in view-box coordinates. */
+  animation: biltong-tick 6s steps(12) infinite;
 }
 .anim-sway {
   transform-box: fill-box;

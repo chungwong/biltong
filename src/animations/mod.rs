@@ -394,8 +394,8 @@ fn CureArt() -> Element {
             // clock
             circle { cx: "146", cy: "70", r: "34", fill: "#fdf6f0", stroke: "#4a1505", stroke_width: "4" }
             circle { cx: "146", cy: "70", r: "3", fill: "#4a1505" }
-            // rotating hand (animated)
-            g { class: "anim-tick",
+            // rotating hand (animated) — pivots about the clock centre (146, 70)
+            g { class: "anim-tick", style: "transform-box: view-box; transform-origin: 146px 70px;",
                 line { x1: "146", y1: "70", x2: "146", y2: "46", stroke: "#7c2d12", stroke_width: "4",
                     stroke_linecap: "round" }
             }
