@@ -107,6 +107,15 @@ pub fn compute(meat_grams: f64, system: UnitSystem) -> Vec<ResultLine> {
         .collect()
 }
 
+/// Target drying temperature range, in the chosen unit system. Shared by the dry-step
+/// text and its animation so they always agree.
+pub fn drying_temp(system: UnitSystem) -> &'static str {
+    match system {
+        UnitSystem::Metric => "21–27 °C",
+        UnitSystem::Imperial => "70–80 °F",
+    }
+}
+
 /// Format the meat weight itself (kg or lb) for display in the slice animation.
 pub fn format_meat(meat_grams: f64, system: UnitSystem) -> String {
     match system {

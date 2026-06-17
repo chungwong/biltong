@@ -2,6 +2,7 @@
 //! alternating the illustration left/right on wider screens.
 
 use crate::animations::StepArt;
+use crate::calculator::{drying_temp, CalcInput};
 use crate::recipe::{Step, STEPS};
 use dioxus::prelude::*;
 
@@ -35,6 +36,10 @@ fn StepCard(index: usize, step: &'static Step) -> Element {
         "sm:order-1"
     };
 
+    // Substitute the unit-aware drying temperature into the body (no-op for other steps).
+    let system = use_context::<Signal<CalcInput>>()().system;
+    let body = step.body.replace("{temp}", drying_temp(system));
+
     rsx! {
         article { class: "grid sm:grid-cols-2 gap-6 items-center bg-white rounded-2xl \
                           shadow-sm ring-1 ring-biltong-100 p-6",
@@ -51,7 +56,7 @@ fn StepCard(index: usize, step: &'static Step) -> Element {
                         "{step.title}"
                     }
                 }
-                p { class: "text-stone-600 leading-relaxed", "{step.body}" }
+                p { class: "text-stone-600 leading-relaxed", "{body}" }
             }
         }
     }

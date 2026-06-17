@@ -2,7 +2,7 @@
 //! in `tailwind.css`. Each step gets its own small component; [`StepArt`] dispatches to
 //! the right one based on the step's [`AnimKind`].
 
-use crate::calculator::{amount_of, format_meat, spice_blend_amount, CalcInput, UnitSystem};
+use crate::calculator::{amount_of, drying_temp, format_meat, spice_blend_amount, CalcInput};
 use crate::recipe::AnimKind;
 use dioxus::prelude::*;
 
@@ -406,10 +406,7 @@ fn CureArt() -> Element {
 #[component]
 fn DryArt() -> Element {
     let input = calc_input();
-    let temp = match input.system {
-        UnitSystem::Metric => "21–27 °C",
-        UnitSystem::Imperial => "70–80 °F",
-    };
+    let temp = drying_temp(input.system);
     rsx! {
         ArtFrame {
             // --- target drying conditions ---

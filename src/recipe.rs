@@ -76,9 +76,8 @@ pub const STEPS: &[Step] = &[
     Step {
         title: "Weigh & hang to dry",
         body: "Weigh and note each steak, hook it, and hang in a warm, sunny spot with a \
-               gentle breeze (21–27 °C / 70–80 °F, 50–60% humidity). Dry until it loses \
-               about 50% of its weight for 'wet' biltong, 55–60% for medium, or up to 70% \
-               for dry.",
+               gentle breeze ({temp}, 50–60% humidity). Dry until it loses about 50% of its \
+               weight for 'wet' biltong, 55–60% for medium, or up to 70% for dry.",
         anim: AnimKind::Dry,
     },
     Step {
