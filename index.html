@@ -18,5 +18,59 @@
   </head>
   <body>
     <div id="main"></div>
+    <script>
+      // Scroll restoration for the WASM SPA. The browser's automatic restore runs before
+      // Dioxus has rendered the page (height is still 0), so it fails and we land at the
+      // top. Instead we save the position ourselves and re-apply it once the content has
+      // actually grown tall enough — also handling #hash links the same way.
+      (function () {
+        if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+        var KEY = "biltong:scrollY";
+        var saveTimer = null;
+
+        addEventListener(
+          "scroll",
+          function () {
+            if (saveTimer) return;
+            saveTimer = setTimeout(function () {
+              saveTimer = null;
+              try {
+                sessionStorage.setItem(KEY, String(Math.round(window.scrollY)));
+              } catch (e) {}
+            }, 150);
+          },
+          { passive: true }
+        );
+
+        function hashTarget() {
+          if (location.hash.length > 1) {
+            var el = document.getElementById(location.hash.slice(1));
+            if (el) return el.getBoundingClientRect().top + window.scrollY;
+          }
+          return null;
+        }
+
+        function restore() {
+          var saved = parseInt(sessionStorage.getItem(KEY) || "0", 10) || 0;
+          var tries = 0;
+          (function tick() {
+            var hy = hashTarget();
+            var target = hy != null ? hy : saved;
+            if (target <= 0) return;
+            var ready =
+              document.documentElement.scrollHeight >=
+              target + window.innerHeight - 1;
+            if (ready || tries++ > 180) {
+              window.scrollTo(0, target);
+            } else {
+              requestAnimationFrame(tick);
+            }
+          })();
+        }
+
+        if (document.readyState === "complete") restore();
+        else addEventListener("load", restore);
+      })();
+    </script>
   </body>
 </html>
