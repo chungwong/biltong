@@ -61,9 +61,9 @@ pub const STEPS: &[Step] = &[
     },
     Step {
         title: "Salt & spice the meat",
-        body: "Sprinkle half the salt and enough spice blend to coat the steaks, then flip \
-               and add the rest. Hold a little blend back to dust on at the end for an extra \
-               spice crust.",
+        body: "Rub half the salt and enough spice blend into the steaks to coat them, then \
+               flip and work in the rest. Hold a little blend back to dust on at the end for \
+               an extra spice crust.",
         anim: AnimKind::Spice,
     },
     Step {

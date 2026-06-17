@@ -255,31 +255,84 @@ fn GrindArt() -> Element {
     }
 }
 
-/// Step 5 — spice being sprinkled over the meat.
+/// Step 5 — rubbing the salt and spice blend into the meat. A hand works back and forth
+/// over a steak dusted with white salt grains and amber spice specks.
 #[component]
 fn SpiceArt() -> Element {
     rsx! {
         ArtFrame {
-            // meat strips
-            rect { x: "44", y: "92", width: "112", height: "14", rx: "7", fill: "#7c2d12" }
-            rect { x: "52", y: "78", width: "96", height: "14", rx: "7", fill: "#7c2d12" }
-            // spice shaker
-            rect { x: "146", y: "16", width: "30", height: "30", rx: "5", fill: "#4a1505" }
-            rect { x: "150", y: "8", width: "22", height: "10", rx: "3", fill: "#a85a32" }
-            // sprinkling spice flecks (animated, staggered)
-            rect { class: "anim-sprinkle", x: "80", y: "44", width: "4", height: "4", fill: "#b45309",
-                style: "animation-delay: 0s" }
-            rect { class: "anim-sprinkle", x: "96", y: "44", width: "3", height: "3", fill: "#4d7c0f",
-                style: "animation-delay: 0.4s" }
-            rect { class: "anim-sprinkle", x: "112", y: "44", width: "4", height: "4", fill: "#7c2d12",
-                style: "animation-delay: 0.8s" }
-            rect { class: "anim-sprinkle", x: "88", y: "44", width: "3", height: "3", fill: "#b45309",
-                style: "animation-delay: 1.2s" }
+            // steak
+            rect { x: "32", y: "52", width: "136", height: "52", rx: "16", fill: "#7c2d12" }
+            line { x1: "44", y1: "70", x2: "156", y2: "70", stroke: "#a85a32", stroke_width: "1.5", opacity: "0.4" }
+            line { x1: "44", y1: "86", x2: "156", y2: "86", stroke: "#a85a32", stroke_width: "1.5", opacity: "0.4" }
+
+            // salt grains (white) being worked in
+            for (i , (x , y)) in [
+                (50.0_f64, 64.0_f64),
+                (70.0, 60.0),
+                (120.0, 62.0),
+                (140.0, 68.0),
+                (60.0, 82.0),
+                (132.0, 84.0),
+            ]
+                .into_iter()
+                .enumerate()
+            {
+                rect {
+                    key: "salt{i}",
+                    class: "anim-jiggle",
+                    style: "animation-delay: {i as f64 * 0.18}s",
+                    x: "{x}",
+                    y: "{y}",
+                    width: "3",
+                    height: "3",
+                    fill: "#f8fafc",
+                }
+            }
+
+            // spice specks (coriander amber + dark pepper)
+            for (i , (cx , cy , c)) in [
+                (58.0_f64, 74.0_f64, "#b45309"),
+                (84.0, 64.0, "#4a1505"),
+                (104.0, 62.0, "#b45309"),
+                (150.0, 62.0, "#4a1505"),
+                (74.0, 90.0, "#b45309"),
+                (122.0, 76.0, "#4a1505"),
+            ]
+                .into_iter()
+                .enumerate()
+            {
+                circle {
+                    key: "sp{i}",
+                    class: "anim-jiggle",
+                    style: "animation-delay: {i as f64 * 0.22}s",
+                    cx: "{cx}",
+                    cy: "{cy}",
+                    r: "2.5",
+                    fill: "{c}",
+                }
+            }
+
+            // hand rubbing the seasoning in (sweeps back and forth)
+            g { class: "anim-slice",
+                rect { x: "73", y: "50", width: "10", height: "7", rx: "3", fill: "#e8b48f" }
+                rect { x: "80", y: "40", width: "40", height: "20", rx: "9", fill: "#e8b48f" }
+                rect { x: "80", y: "40", width: "40", height: "6", rx: "9", fill: "#d99c73", opacity: "0.5" }
+                for (i , fx) in [82.0_f64, 91.0, 100.0, 109.0].into_iter().enumerate() {
+                    rect { key: "fg{i}", x: "{fx}", y: "58", width: "6", height: "15", rx: "3", fill: "#e8b48f" }
+                }
+            }
+
+            // legend
+            rect { x: "40", y: "118", width: "9", height: "7", rx: "1", fill: "#f8fafc", stroke: "#d1d5db", stroke_width: "1" }
+            text { x: "52", y: "124", font_size: "7", fill: "#4a1505", "salt" }
+            rect { x: "92", y: "118", width: "9", height: "7", rx: "1", fill: "#b45309" }
+            text { x: "104", y: "124", font_size: "7", fill: "#4a1505", "spice blend" }
         }
     }
 }
 
-/// Step 4 — resting in the fridge: a ticking clock.
+/// Step 6 — resting in the fridge: a ticking clock.
 #[component]
 fn CureArt() -> Element {
     rsx! {
@@ -302,7 +355,7 @@ fn CureArt() -> Element {
     }
 }
 
-/// Step 5 — strips hanging and drying with airflow.
+/// Step 7 — strips hanging and drying with airflow.
 #[component]
 fn DryArt() -> Element {
     rsx! {
@@ -330,7 +383,7 @@ fn DryArt() -> Element {
     }
 }
 
-/// Step 6 — the finished biltong, sliced and fanned out.
+/// Step 8 — the finished biltong, sliced and fanned out.
 #[component]
 fn DoneArt() -> Element {
     rsx! {

@@ -85,20 +85,6 @@
   }
 }
 
-@keyframes biltong-sprinkle {
-  0% {
-    transform: translateY(-4px) rotate(0deg);
-    opacity: 0;
-  }
-  25% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(40px) rotate(220deg);
-    opacity: 0;
-  }
-}
-
 @keyframes biltong-tick {
   0%,
   100% {
@@ -171,11 +157,6 @@
 .anim-drop {
   animation: biltong-drop 2s ease-in infinite;
 }
-.anim-sprinkle {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: biltong-sprinkle 2.4s linear infinite;
-}
 .anim-tick {
   transform-box: fill-box;
   transform-origin: center;
@@ -202,7 +183,6 @@
   .anim-jiggle,
   .anim-rise,
   .anim-drop,
-  .anim-sprinkle,
   .anim-tick,
   .anim-sway,
   .anim-airflow,
