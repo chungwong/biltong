@@ -1,0 +1,163 @@
+@import "tailwindcss";
+
+/* Scan the Rust source for class names so Tailwind keeps only what we use. */
+@source "./src/**/*.rs";
+@source "./index.html";
+
+/* Warm, rustic palette exposed as Tailwind theme tokens (bg-biltong-700, text-spice-500…). */
+@theme {
+  --color-biltong-50: #fdf6f0;
+  --color-biltong-100: #f7e6d8;
+  --color-biltong-300: #d8a47f;
+  --color-biltong-500: #a85a32;
+  --color-biltong-700: #7c2d12;
+  --color-biltong-900: #4a1505;
+  --color-spice-500: #b45309;
+  --color-herb-600: #4d7c0f;
+
+  --font-display: "Georgia", "Times New Roman", serif;
+}
+
+/*
+ * Step animations — plain CSS keyframes (Tailwind passes these through untouched).
+ * Each SVG component applies one of the .anim-* classes. All motion is disabled for
+ * users who prefer reduced motion.
+ */
+@keyframes biltong-knife {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(-8deg);
+  }
+  50% {
+    transform: translate(-34px, 18px) rotate(-8deg);
+  }
+}
+
+@keyframes biltong-drop {
+  0% {
+    transform: translateY(-6px);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(46px);
+    opacity: 0;
+  }
+}
+
+@keyframes biltong-sprinkle {
+  0% {
+    transform: translateY(-4px) rotate(0deg);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(40px) rotate(220deg);
+    opacity: 0;
+  }
+}
+
+@keyframes biltong-tick {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+}
+
+@keyframes biltong-sway {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+@keyframes biltong-airflow {
+  0% {
+    transform: translateX(-14px);
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+}
+
+@keyframes biltong-fan-in {
+  0% {
+    transform: translateY(8px) scale(0.96);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes biltong-shine {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.anim-knife {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: biltong-knife 2.6s ease-in-out infinite;
+}
+.anim-drop {
+  animation: biltong-drop 2s ease-in infinite;
+}
+.anim-sprinkle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: biltong-sprinkle 2.4s linear infinite;
+}
+.anim-tick {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: biltong-tick 4s steps(12) infinite;
+}
+.anim-sway {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: biltong-sway 3.2s ease-in-out infinite;
+}
+.anim-airflow {
+  animation: biltong-airflow 2.2s ease-out infinite;
+}
+.anim-fan-in {
+  animation: biltong-fan-in 0.8s ease-out both;
+}
+.anim-shine {
+  animation: biltong-shine 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-knife,
+  .anim-drop,
+  .anim-sprinkle,
+  .anim-tick,
+  .anim-sway,
+  .anim-airflow,
+  .anim-fan-in,
+  .anim-shine {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="12" fill="#7c2d12" />
+  <!-- a little hanging strip of biltong -->
+  <line x1="32" y1="8" x2="32" y2="16" stroke="#d8a47f" stroke-width="3" stroke-linecap="round" />
+  <rect x="22" y="16" width="20" height="40" rx="9" fill="#4a1505" stroke="#a85a32" stroke-width="2" />
+  <ellipse cx="32" cy="26" rx="6" ry="3" fill="#a85a32" opacity="0.7" />
+</svg>
