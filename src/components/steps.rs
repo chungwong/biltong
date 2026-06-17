@@ -52,21 +52,32 @@ fn StepAnchor() -> Element {
     rsx! {
         nav {
             "aria-label": "Steps",
-            class: "hidden xl:block fixed right-4 top-1/2 -translate-y-1/2 z-40",
-            ul { class: "flex flex-col text-sm",
+            class: "fixed right-2 sm:right-3 top-1/2 -translate-y-1/2 z-40",
+            ul { class: "flex flex-col gap-1.5 items-end",
                 for (i , step) in STEPS.iter().enumerate() {
                     li { key: "{i}",
                         a {
                             href: "#step-{i}",
                             title: "{step.title}",
-                            class: if active() == i {
-                                "block border-l-2 pl-3 py-1.5 max-w-[11rem] truncate transition-colors \
-                                 border-biltong-700 text-biltong-700 font-semibold"
-                            } else {
-                                "block border-l-2 pl-3 py-1.5 max-w-[11rem] truncate transition-colors \
-                                 border-biltong-100 text-stone-400 hover:text-biltong-600 hover:border-biltong-300"
-                            },
-                            "{i + 1}. {step.title}"
+                            "aria-label": "{step.title}",
+                            class: "group flex items-center gap-2 py-1 pl-3",
+                            // label — only on wide screens
+                            span {
+                                class: if active() == i {
+                                    "hidden xl:block text-sm max-w-[11rem] truncate transition-colors text-biltong-700 font-semibold"
+                                } else {
+                                    "hidden xl:block text-sm max-w-[11rem] truncate transition-colors text-stone-400 group-hover:text-biltong-600"
+                                },
+                                "{i + 1}. {step.title}"
+                            }
+                            // dot — always visible
+                            span {
+                                class: if active() == i {
+                                    "block w-3 h-3 rounded-full bg-biltong-700 ring-2 ring-biltong-300 transition-all"
+                                } else {
+                                    "block w-2 h-2 rounded-full bg-biltong-300 group-hover:bg-biltong-500 transition-all"
+                                },
+                            }
                         }
                     }
                 }
