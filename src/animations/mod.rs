@@ -459,6 +459,12 @@ fn DryArt() -> Element {
                     fill: "none", stroke: "#4d7c0f", stroke_width: "2", stroke_linecap: "round",
                     style: "animation-delay: {i as f64 * 0.3}s" }
             }
+            // drying time: a little calendar + "~5 days"
+            line { x1: "80", y1: "110", x2: "80", y2: "116", stroke: "#4a1505", stroke_width: "1.5" }
+            line { x1: "86", y1: "110", x2: "86", y2: "116", stroke: "#4a1505", stroke_width: "1.5" }
+            rect { x: "76", y: "114", width: "14", height: "12", rx: "2", fill: "#fdf6f0", stroke: "#4a1505", stroke_width: "1.5" }
+            rect { x: "76", y: "114", width: "14", height: "4", rx: "2", fill: "#4a1505" }
+            text { x: "94", y: "124", font_size: "9", font_weight: "bold", fill: "#4a1505", "~5 days" }
         }
     }
 }
