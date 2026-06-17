@@ -31,24 +31,75 @@ fn ArtFrame(children: Element) -> Element {
     }
 }
 
-/// Step 1 — a knife slicing a block of meat.
+/// Step 1 — slicing the beef. The illustration emphasises the two things the text calls
+/// out: cut WITH the grain (knife travels along the grain striations, parallel to the
+/// cut lines) and keep each strip ~2 cm thick (a pulsing dimension marker).
 #[component]
 fn SliceArt() -> Element {
     rsx! {
         ArtFrame {
+            // "cut with the grain" label + a direction arrow that runs along the grain
+            text {
+                x: "14",
+                y: "15",
+                font_size: "10",
+                font_weight: "bold",
+                fill: "#7c2d12",
+                "cut with the grain"
+            }
+            line { x1: "16", y1: "24", x2: "120", y2: "24", stroke: "#a85a32", stroke_width: "2" }
+            polygon { points: "120,20 130,24 120,28", fill: "#a85a32" }
+
             // cutting board
-            rect { x: "20", y: "96", width: "160", height: "12", rx: "4", fill: "#d8a47f" }
-            // meat block
-            rect { x: "48", y: "62", width: "104", height: "36", rx: "10", fill: "#7c2d12" }
-            rect { x: "48", y: "62", width: "26", height: "36", rx: "10", fill: "#a85a32", opacity: "0.6" }
-            // pre-cut lines
-            line { x1: "82", y1: "64", x2: "82", y2: "96", stroke: "#4a1505", stroke_width: "2" }
-            line { x1: "104", y1: "64", x2: "104", y2: "96", stroke: "#4a1505", stroke_width: "2" }
-            line { x1: "126", y1: "64", x2: "126", y2: "96", stroke: "#4a1505", stroke_width: "2" }
-            // the knife (animated)
-            g { class: "anim-knife",
-                rect { x: "120", y: "20", width: "60", height: "10", rx: "3", fill: "#9ca3af" }
-                rect { x: "172", y: "16", width: "20", height: "18", rx: "4", fill: "#4a1505" }
+            rect { x: "16", y: "110", width: "150", height: "10", rx: "4", fill: "#d8a47f" }
+
+            // meat as stacked ~2 cm strips; grain striations run along their length, so the
+            // cuts between strips are parallel to the grain.
+            for (i , y) in [38.0_f64, 60.0, 82.0].into_iter().enumerate() {
+                g { key: "{i}",
+                    rect { x: "30", y: "{y}", width: "112", height: "18", rx: "4", fill: "#7c2d12" }
+                    line {
+                        x1: "36",
+                        y1: "{y + 6.0}",
+                        x2: "136",
+                        y2: "{y + 6.0}",
+                        stroke: "#a85a32",
+                        stroke_width: "1.5",
+                        opacity: "0.6",
+                    }
+                    line {
+                        x1: "36",
+                        y1: "{y + 12.0}",
+                        x2: "136",
+                        y2: "{y + 12.0}",
+                        stroke: "#a85a32",
+                        stroke_width: "1.5",
+                        opacity: "0.4",
+                    }
+                }
+            }
+
+            // thickness dimension on the top strip (y 38..56), gently pulsing for emphasis
+            g { class: "anim-pulse",
+                line { x1: "150", y1: "38", x2: "162", y2: "38", stroke: "#4a1505", stroke_width: "1.5" }
+                line { x1: "150", y1: "56", x2: "162", y2: "56", stroke: "#4a1505", stroke_width: "1.5" }
+                line { x1: "156", y1: "38", x2: "156", y2: "56", stroke: "#4a1505", stroke_width: "1.5" }
+                text {
+                    x: "165",
+                    y: "50",
+                    font_size: "9",
+                    font_weight: "bold",
+                    fill: "#4a1505",
+                    "2 cm"
+                }
+            }
+
+            // the knife slices horizontally — i.e. along the grain — through a cut line
+            g { class: "anim-slice",
+                rect { x: "46", y: "55", width: "92", height: "6", rx: "2", fill: "#cbd5e1" }
+                polygon { points: "46,55 38,58 46,61", fill: "#cbd5e1" }
+                rect { x: "138", y: "52", width: "8", height: "12", rx: "2", fill: "#9ca3af" }
+                rect { x: "146", y: "51", width: "26", height: "14", rx: "3", fill: "#4a1505" }
             }
         }
     }

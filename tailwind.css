@@ -23,13 +23,27 @@
  * Each SVG component applies one of the .anim-* classes. All motion is disabled for
  * users who prefer reduced motion.
  */
-@keyframes biltong-knife {
+@keyframes biltong-slice {
+  0% {
+    transform: translateX(38px);
+  }
+  55% {
+    transform: translateX(-6px);
+  }
+  100% {
+    transform: translateX(38px);
+  }
+}
+
+@keyframes biltong-pulse {
   0%,
   100% {
-    transform: translate(0, 0) rotate(-8deg);
+    transform: scale(1);
+    opacity: 0.8;
   }
   50% {
-    transform: translate(-34px, 18px) rotate(-8deg);
+    transform: scale(1.12);
+    opacity: 1;
   }
 }
 
@@ -116,10 +130,13 @@
   }
 }
 
-.anim-knife {
+.anim-slice {
+  animation: biltong-slice 2.4s ease-in-out infinite;
+}
+.anim-pulse {
   transform-box: fill-box;
   transform-origin: center;
-  animation: biltong-knife 2.6s ease-in-out infinite;
+  animation: biltong-pulse 2s ease-in-out infinite;
 }
 .anim-drop {
   animation: biltong-drop 2s ease-in infinite;
@@ -150,7 +167,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .anim-knife,
+  .anim-slice,
+  .anim-pulse,
   .anim-drop,
   .anim-sprinkle,
   .anim-tick,
