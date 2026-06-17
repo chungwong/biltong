@@ -99,8 +99,9 @@ const CUTS: &[Cut] = &[
     Cut {
         label: "Cube roll",
         name: "Cube roll (ribeye)",
-        rating: Rating::Poor,
-        note: "Well-marbled and fatty — too rich for good biltong.",
+        rating: Rating::Divisive,
+        note: "Divisive: heavily marbled, so it makes rich, fatty biltong — some love it, \
+               others find it too greasy and quicker to spoil. Trim the external fat.",
         points: "135,58 185,55 185,105 135,105",
         lx: 160.0,
         ly: 84.0,
