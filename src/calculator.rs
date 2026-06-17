@@ -105,32 +105,43 @@ mod tests {
     }
 
     #[test]
-    fn salt_is_two_percent_in_metric() {
-        // First ingredient is salt at 2% of meat weight: 1 kg -> 20 g.
-        let lines = compute(meat_to_grams(1.0, UnitSystem::Metric), UnitSystem::Metric);
-        assert_eq!(lines[0].name, "Coarse salt");
-        assert_eq!(lines[0].amount, "20 g");
+    fn reproduces_source_recipe_at_base_weight() {
+        // The source quotes its amounts for 4540 g of meat; the calculator must match.
+        use crate::recipe::BASE_MEAT_G;
+        let lines = compute(BASE_MEAT_G, UnitSystem::Metric);
+        let amount = |name: &str| {
+            lines
+                .iter()
+                .find(|l| l.name == name)
+                .unwrap_or_else(|| panic!("missing {name}"))
+                .amount
+                .clone()
+        };
+        assert_eq!(amount("Salt"), "102 g");
+        assert_eq!(amount("Coriander seed (toasted)"), "68.1 g");
+        assert_eq!(amount("Peppercorns"), "34 g");
+        assert_eq!(amount("Chili flakes"), "22.7 g");
+        assert_eq!(amount("Red wine vinegar"), "120 ml");
+        assert_eq!(amount("Worcestershire sauce"), "60 ml");
     }
 
     #[test]
-    fn vinegar_scales_per_kilogram() {
-        // Vinegar is 40 ml/kg; 2 kg -> 80 ml.
-        let lines = compute(meat_to_grams(2.0, UnitSystem::Metric), UnitSystem::Metric);
-        let vinegar = lines
-            .iter()
-            .find(|l| l.name.starts_with("Vinegar"))
-            .unwrap();
-        assert_eq!(vinegar.amount, "80 ml");
+    fn salt_is_about_2_2_percent_per_kilogram() {
+        // Salt is 102 g / 4540 g ~= 2.2%; 1 kg -> ~22.5 g.
+        let lines = compute(meat_to_grams(1.0, UnitSystem::Metric), UnitSystem::Metric);
+        assert_eq!(lines[0].name, "Salt");
+        assert_eq!(lines[0].amount, "22.5 g");
     }
 
     #[test]
     fn imperial_formats_in_ounces() {
-        // 1 lb of meat, salt at 2% -> 0.02 lb -> ~0.32 oz.
+        // 1 lb of meat, salt at ~2.2% -> ~10.2 g -> ~0.4 oz.
         let lines = compute(
             meat_to_grams(1.0, UnitSystem::Imperial),
             UnitSystem::Imperial,
         );
-        assert_eq!(lines[0].amount, "0.3 oz");
+        assert_eq!(lines[0].name, "Salt");
+        assert_eq!(lines[0].amount, "0.4 oz");
     }
 
     #[test]

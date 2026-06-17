@@ -4,10 +4,10 @@
 //!   * [`STEPS`]        — the ordered tutorial steps shown on the page.
 //!   * [`INGREDIENTS`]  — the spice/cure ratios the calculator scales by meat weight.
 //!
-//! NOTE: the numbers below are clearly-marked *placeholder* ratios drawn from common
-//! biltong practice. Replace the values in [`INGREDIENTS`] (and tweak the step copy if
-//! needed) with the exact figures from the source recipe — this is the only place that
-//! needs editing.
+//! The ratios in [`INGREDIENTS`] are taken directly from the source recipe, which is
+//! built around a [`BASE_MEAT_G`]-gram batch; each amount is stored as `source / batch`
+//! so the calculator reproduces the original numbers exactly at that weight and scales
+//! linearly from there. This is the only place recipe numbers need editing.
 
 /// Which inline-SVG animation illustrates a given step.
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -32,43 +32,44 @@ pub struct Step {
 pub const STEPS: &[Step] = &[
     Step {
         title: "Choose & slice the beef",
-        body: "Pick a lean cut such as silverside or topside. Trim off sinew and slice \
-               with the grain into strips about 1–2 cm thick — thinner dries faster, \
-               thicker stays chewy in the middle.",
+        body: "Use a lean cut like bottom round or top round. Trim off the silver skin, \
+               gristle and soft fat, then cut WITH the grain into 2 cm thick steaks — \
+               about the width of your thumb.",
         anim: AnimKind::Slice,
     },
     Step {
-        title: "Vinegar wash",
-        body: "Splash the strips with brown, malt or apple-cider vinegar and toss to coat. \
-               The acid seasons the meat, helps it hold spice, and protects the surface \
-               while it dries.",
+        title: "Vinegar & Worcestershire bath",
+        body: "Mix the red wine vinegar and Worcestershire sauce. Pour half into a tray, \
+               lay the steaks on top, then pour the rest over so every piece is coated.",
         anim: AnimKind::Vinegar,
     },
     Step {
-        title: "Mix & apply the spice cure",
-        body: "Toast the coriander seed until fragrant, then crack it coarse. Combine with \
-               salt, black pepper, sugar and (for safe slow drying) a little Cure #1. Rub \
-               the mix evenly over every strip.",
+        title: "Salt & spice the meat",
+        body: "Toast the coriander and grind it coarse, then coarsely grind the peppercorns \
+               and chili flakes and combine into a spice blend. Sprinkle half the salt and \
+               enough blend to coat, flip, and add the rest. Hold a little blend back to \
+               dust on at the end for a nice spice crust.",
         anim: AnimKind::Spice,
     },
     Step {
-        title: "Cure & rest",
-        body: "Pack the spiced strips into a container and rest in the fridge for 12–24 \
-               hours, turning once or twice. This lets the salt and flavour work their way \
-               into the meat.",
+        title: "Bag & cure",
+        body: "Pack the meat with all the spices and juices into a vacuum or zip-lock bag \
+               and press out the air. Cure in the fridge for 24–36 hours, flipping and \
+               massaging the bag every 12 hours so it cures evenly.",
         anim: AnimKind::Cure,
     },
     Step {
-        title: "Hang & dry",
-        body: "Hang the strips with good airflow in a biltong box at roughly 25 °C and low \
-               humidity. Give them 3–5 days — longer for a drier, harder result.",
+        title: "Weigh & hang to dry",
+        body: "Weigh and note each steak, hook it, and hang in a warm, sunny spot with a \
+               gentle breeze (21–27 °C / 70–80 °F, 50–60% humidity). Dry until it loses \
+               about 50% of its weight for 'wet' biltong, 55–60% for medium, or up to 70% \
+               for dry.",
         anim: AnimKind::Dry,
     },
     Step {
-        title: "Slice & enjoy",
-        body: "It's ready when the outside is firm but the strip still has a little spring. \
-               Slice across the grain into thin pieces and enjoy. Store in a paper bag so \
-               it can keep breathing.",
+        title: "Slice & store",
+        body: "Once it's dried to your liking, slice across the grain and enjoy. \
+               Vacuum-seal any extra and keep it in the fridge or freezer.",
         anim: AnimKind::Done,
     },
 ];
@@ -89,41 +90,39 @@ pub struct Ingredient {
     pub note: &'static str,
 }
 
-/// Spice/cure ratios. **Placeholder values — replace with the source recipe's figures.**
+/// The meat weight (grams) the source recipe's amounts are quoted for.
+pub const BASE_MEAT_G: f64 = 4540.0;
+
+/// Spice/cure ratios, taken from the source recipe (quoted for [`BASE_MEAT_G`] of meat).
 pub const INGREDIENTS: &[Ingredient] = &[
     Ingredient {
-        name: "Coarse salt",
-        measure: Measure::WeightFraction(0.020),
-        note: "~2% of meat weight",
+        name: "Salt",
+        measure: Measure::WeightFraction(102.0 / BASE_MEAT_G),
+        note: "~2.2% of meat weight",
     },
     Ingredient {
-        name: "Coriander seed (toasted, cracked)",
-        measure: Measure::WeightFraction(0.015),
+        name: "Coriander seed (toasted)",
+        measure: Measure::WeightFraction(68.1 / BASE_MEAT_G),
         note: "the signature biltong spice",
     },
     Ingredient {
-        name: "Black pepper (coarse)",
-        measure: Measure::WeightFraction(0.005),
-        note: "",
+        name: "Peppercorns",
+        measure: Measure::WeightFraction(34.0 / BASE_MEAT_G),
+        note: "coarsely ground",
     },
     Ingredient {
-        name: "Brown sugar",
-        measure: Measure::WeightFraction(0.010),
-        note: "balances the salt",
+        name: "Chili flakes",
+        measure: Measure::WeightFraction(22.7 / BASE_MEAT_G),
+        note: "optional, for heat",
     },
     Ingredient {
-        name: "Cure #1 (pink curing salt)",
-        measure: Measure::WeightFraction(0.0025),
-        note: "optional, for safe slow drying",
-    },
-    Ingredient {
-        name: "Vinegar (brown / cider)",
-        measure: Measure::VolumePerKg(40.0),
-        note: "for the wash",
+        name: "Red wine vinegar",
+        measure: Measure::VolumePerKg(120.0 / (BASE_MEAT_G / 1000.0)),
+        note: "for the bath",
     },
     Ingredient {
         name: "Worcestershire sauce",
-        measure: Measure::VolumePerKg(10.0),
-        note: "optional, for depth",
+        measure: Measure::VolumePerKg(60.0 / (BASE_MEAT_G / 1000.0)),
+        note: "for the bath",
     },
 ];

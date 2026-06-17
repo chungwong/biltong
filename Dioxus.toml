@@ -6,11 +6,3 @@ name = "biltong"
 # name so hashed asset URLs resolve under the GitHub Pages sub-directory.
 base_path = "biltong"
 title = "How to Make Biltong"
-
-[web.watcher]
-reload_html = true
-
-[web.resource]
-# All styling comes from the Tailwind-compiled stylesheet referenced via asset!() in code.
-style = []
-script = []
