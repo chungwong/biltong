@@ -27,8 +27,25 @@ pub fn Calculator() -> Element {
 
                 div { class: "bg-white rounded-2xl shadow-sm ring-1 ring-biltong-100 p-6 sm:p-8",
                     // Controls
-                    div { class: "flex flex-col sm:flex-row gap-4 sm:items-end mb-6",
-                        label { class: "flex-1",
+                    div { class: "mb-6 space-y-4",
+                        // Unit toggle — on top, since it drives the unit shown everywhere below
+                        div {
+                            span { class: "block text-sm font-semibold text-stone-700 mb-1", "Units" }
+                            div { class: "flex w-full sm:inline-flex sm:w-auto rounded-lg ring-1 ring-biltong-300 overflow-hidden",
+                                UnitButton {
+                                    label: "Metric",
+                                    active: sys == UnitSystem::Metric,
+                                    onclick: move |_| set_system(input, &raw(), UnitSystem::Metric),
+                                }
+                                UnitButton {
+                                    label: "Imperial",
+                                    active: sys == UnitSystem::Imperial,
+                                    onclick: move |_| set_system(input, &raw(), UnitSystem::Imperial),
+                                }
+                            }
+                        }
+                        // Amount of beef
+                        label { class: "block",
                             span { class: "block text-sm font-semibold text-stone-700 mb-1",
                                 "Amount of beef"
                             }
@@ -70,17 +87,23 @@ pub fn Calculator() -> Element {
                                 }
                             }
                         }
-                        // Unit toggle
-                        div { class: "flex w-full sm:inline-flex sm:w-auto rounded-lg ring-1 ring-biltong-300 overflow-hidden",
-                            UnitButton {
-                                label: "Metric",
-                                active: sys == UnitSystem::Metric,
-                                onclick: move |_| set_system(input, &raw(), UnitSystem::Metric),
-                            }
-                            UnitButton {
-                                label: "Imperial",
-                                active: sys == UnitSystem::Imperial,
-                                onclick: move |_| set_system(input, &raw(), UnitSystem::Imperial),
+                        // Quick presets in the current unit
+                        div {
+                            span { class: "block text-sm font-semibold text-stone-700 mb-1", "Quick amounts" }
+                            div { class: "flex flex-wrap gap-2",
+                                for n in [1.0_f64, 2.0, 3.0, 4.0, 5.0] {
+                                    button {
+                                        key: "{n}",
+                                        r#type: "button",
+                                        class: if (amount - n).abs() < 1e-9 {
+                                            "px-3 py-1.5 rounded-lg text-sm font-semibold border bg-biltong-700 text-white border-biltong-700"
+                                        } else {
+                                            "px-3 py-1.5 rounded-lg text-sm font-medium border border-biltong-300 text-stone-700 hover:bg-biltong-50 transition-colors"
+                                        },
+                                        onclick: move |_| set_amount(input, raw, n),
+                                        "{n} {sys.meat_unit()}"
+                                    }
+                                }
                             }
                         }
                     }
@@ -139,6 +162,13 @@ fn step_amount(mut input: Signal<CalcInput>, mut raw: Signal<String>, dir: f64) 
     };
     raw.set(text);
     input.write().meat_grams = meat_to_grams(next, sys);
+}
+
+/// Set the meat amount directly (used by the preset chips).
+fn set_amount(mut input: Signal<CalcInput>, mut raw: Signal<String>, value: f64) {
+    let sys = input().system;
+    raw.set(format!("{value}"));
+    input.write().meat_grams = meat_to_grams(value, sys);
 }
 
 /// Switch unit system, re-deriving the stored grams from the current raw input.
