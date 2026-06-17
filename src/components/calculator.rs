@@ -13,12 +13,6 @@ pub fn Calculator() -> Element {
     let sys = system();
     let amount = raw().trim().parse::<f64>().unwrap_or(0.0).max(0.0);
     let lines = compute(meat_to_grams(amount, sys), sys);
-    // Largest amount drives the full-width bar; everything else scales relative to it.
-    let max_mag = lines
-        .iter()
-        .map(|l| l.magnitude)
-        .fold(0.0_f64, f64::max)
-        .max(1e-9);
 
     rsx! {
         section { id: "calculator", class: "bg-biltong-50 py-16",
@@ -64,47 +58,20 @@ pub fn Calculator() -> Element {
                         }
                     }
 
-                    // Results — a bar per ingredient, sized by amount, labelled with the
-                    // live quantity. Recomputes whenever the weight or unit changes.
+                    // Results — exact amount per ingredient, recomputed whenever the
+                    // weight or unit changes.
                     if amount > 0.0 {
-                        svg {
-                            class: "w-full",
-                            view_box: "0 0 300 150",
-                            role: "img",
-                            "aria-label": "Ingredient amounts",
-                            for (i , l) in lines.iter().enumerate() {
-                                g { key: "{l.short}",
-                                    text {
-                                        x: "80",
-                                        y: "{20.0 + i as f64 * 23.0}",
-                                        text_anchor: "end",
-                                        font_size: "9",
-                                        fill: "#44403c",
-                                        "{l.short}"
+                        ul { class: "divide-y divide-biltong-100",
+                            for line in lines {
+                                li { key: "{line.name}", class: "flex items-baseline justify-between gap-4 py-2.5",
+                                    span { class: "min-w-0",
+                                        span { class: "font-medium text-stone-800", "{line.name}" }
+                                        if !line.note.is_empty() {
+                                            span { class: "block text-xs text-stone-400", "{line.note}" }
+                                        }
                                     }
-                                    rect {
-                                        x: "86",
-                                        y: "{11.0 + i as f64 * 23.0}",
-                                        width: "150",
-                                        height: "13",
-                                        rx: "3",
-                                        fill: "#f1e7dd",
-                                    }
-                                    rect {
-                                        x: "86",
-                                        y: "{11.0 + i as f64 * 23.0}",
-                                        width: "{150.0 * l.magnitude / max_mag}",
-                                        height: "13",
-                                        rx: "3",
-                                        fill: "{l.color}",
-                                    }
-                                    text {
-                                        x: "242",
-                                        y: "{21.0 + i as f64 * 23.0}",
-                                        font_size: "9",
-                                        font_weight: "bold",
-                                        fill: "#7c2d12",
-                                        "{l.amount}"
+                                    span { class: "font-semibold text-biltong-700 whitespace-nowrap",
+                                        "{line.amount}"
                                     }
                                 }
                             }

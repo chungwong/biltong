@@ -86,8 +86,6 @@ pub enum Measure {
 /// One ingredient in the spice cure.
 pub struct Ingredient {
     pub name: &'static str,
-    /// Short label for the compact chart.
-    pub short: &'static str,
     pub measure: Measure,
     pub note: &'static str,
 }
@@ -99,37 +97,31 @@ pub const BASE_MEAT_G: f64 = 4540.0;
 pub const INGREDIENTS: &[Ingredient] = &[
     Ingredient {
         name: "Salt",
-        short: "Salt",
         measure: Measure::WeightFraction(102.0 / BASE_MEAT_G),
         note: "~2.2% of meat weight",
     },
     Ingredient {
         name: "Coriander seed (toasted)",
-        short: "Coriander",
         measure: Measure::WeightFraction(68.1 / BASE_MEAT_G),
         note: "the signature biltong spice",
     },
     Ingredient {
         name: "Peppercorns",
-        short: "Pepper",
         measure: Measure::WeightFraction(34.0 / BASE_MEAT_G),
         note: "coarsely ground",
     },
     Ingredient {
         name: "Chili flakes",
-        short: "Chili",
         measure: Measure::WeightFraction(22.7 / BASE_MEAT_G),
         note: "optional, for heat",
     },
     Ingredient {
         name: "Red wine vinegar",
-        short: "Vinegar",
         measure: Measure::VolumePerKg(120.0 / (BASE_MEAT_G / 1000.0)),
         note: "for the bath",
     },
     Ingredient {
         name: "Worcestershire sauce",
-        short: "Worcester",
         measure: Measure::VolumePerKg(60.0 / (BASE_MEAT_G / 1000.0)),
         note: "for the bath",
     },
