@@ -2,8 +2,14 @@
 //! in `tailwind.css`. Each step gets its own small component; [`StepArt`] dispatches to
 //! the right one based on the step's [`AnimKind`].
 
+use crate::calculator::{amount_of, format_meat, spice_blend_amount, CalcInput};
 use crate::recipe::AnimKind;
 use dioxus::prelude::*;
+
+/// Read the shared calculator input so an animation can show live amounts.
+fn calc_input() -> CalcInput {
+    use_context::<Signal<CalcInput>>()()
+}
 
 /// Render the animation that illustrates a given step.
 #[component]
@@ -38,6 +44,8 @@ fn ArtFrame(children: Element) -> Element {
 /// cut lines) and keep each strip ~2 cm thick (a pulsing dimension marker).
 #[component]
 fn SliceArt() -> Element {
+    let input = calc_input();
+    let meat = format_meat(input.meat_grams, input.system);
     rsx! {
         ArtFrame {
             // "cut with the grain" label + a direction arrow that runs along the grain
@@ -48,6 +56,16 @@ fn SliceArt() -> Element {
                 font_weight: "bold",
                 fill: "#7c2d12",
                 "cut with the grain"
+            }
+            // live meat weight from the calculator
+            text {
+                x: "186",
+                y: "15",
+                text_anchor: "end",
+                font_size: "10",
+                font_weight: "bold",
+                fill: "#4a1505",
+                "{meat} beef"
             }
             line { x1: "16", y1: "24", x2: "120", y2: "24", stroke: "#a85a32", stroke_width: "2" }
             polygon { points: "120,20 130,24 120,28", fill: "#a85a32" }
@@ -111,6 +129,9 @@ fn SliceArt() -> Element {
 /// sliced beef seen from above (orthogonal view).
 #[component]
 fn VinegarArt() -> Element {
+    let input = calc_input();
+    let vinegar = amount_of("Red wine vinegar", input.meat_grams, input.system);
+    let worcester = amount_of("Worcestershire sauce", input.meat_grams, input.system);
     rsx! {
         ArtFrame {
             // --- tray of sliced beef, top-down ---
@@ -164,11 +185,11 @@ fn VinegarArt() -> Element {
             circle { class: "anim-drop", cx: "131", cy: "50", r: "3", fill: "#3f2d1a",
                 style: "animation-delay: 1.5s" }
 
-            // --- legend ---
-            rect { x: "18", y: "126", width: "9", height: "7", rx: "1", fill: "#b91c1c" }
-            text { x: "30", y: "132", font_size: "7", fill: "#4a1505", "red wine vinegar" }
-            rect { x: "104", y: "126", width: "9", height: "7", rx: "1", fill: "#3f2d1a" }
-            text { x: "116", y: "132", font_size: "7", fill: "#4a1505", "Worcestershire" }
+            // --- legend with live amounts ---
+            rect { x: "18", y: "122", width: "8", height: "6", rx: "1", fill: "#b91c1c" }
+            text { x: "30", y: "127", font_size: "8", fill: "#4a1505", "red wine vinegar — {vinegar}" }
+            rect { x: "18", y: "131", width: "8", height: "6", rx: "1", fill: "#3f2d1a" }
+            text { x: "30", y: "136", font_size: "8", fill: "#4a1505", "Worcestershire — {worcester}" }
         }
     }
 }
@@ -176,8 +197,19 @@ fn VinegarArt() -> Element {
 /// Step 3 — toasting the coriander seeds in a dry pan over a flame.
 #[component]
 fn ToastArt() -> Element {
+    let input = calc_input();
+    let coriander = amount_of("Coriander seed (toasted)", input.meat_grams, input.system);
     rsx! {
         ArtFrame {
+            // live coriander amount
+            text {
+                x: "10",
+                y: "14",
+                font_size: "9",
+                font_weight: "bold",
+                fill: "#4a1505",
+                "Coriander seed: {coriander}"
+            }
             // flames under the pan (flickering)
             for (i , cx) in [74.0_f64, 90.0, 106.0].into_iter().enumerate() {
                 g { key: "f{i}", class: "anim-jiggle", style: "animation-delay: {i as f64 * 0.2}s",
@@ -233,8 +265,19 @@ fn ToastArt() -> Element {
 /// Step 4 — grinding the toasted spices in a mortar and pestle.
 #[component]
 fn GrindArt() -> Element {
+    let input = calc_input();
+    let coriander = amount_of("Coriander seed (toasted)", input.meat_grams, input.system);
+    let pepper = amount_of("Peppercorns", input.meat_grams, input.system);
+    let chili = amount_of("Chili flakes", input.meat_grams, input.system);
     rsx! {
         ArtFrame {
+            // live spice amounts going into the blend
+            text { x: "8", y: "12", font_size: "8", font_weight: "bold", fill: "#4a1505",
+                "Coriander {coriander}" }
+            text { x: "8", y: "23", font_size: "8", font_weight: "bold", fill: "#4a1505",
+                "Pepper {pepper}" }
+            text { x: "8", y: "34", font_size: "8", font_weight: "bold", fill: "#4a1505",
+                "Chili {chili}" }
             // mortar bowl
             ellipse { cx: "100", cy: "76", rx: "58", ry: "11", fill: "#c9ad93" }
             path { d: "M44 76 Q100 134 156 76 Z", fill: "#d8a47f" }
@@ -259,6 +302,9 @@ fn GrindArt() -> Element {
 /// over a steak dusted with white salt grains and amber spice specks.
 #[component]
 fn SpiceArt() -> Element {
+    let input = calc_input();
+    let salt = amount_of("Salt", input.meat_grams, input.system);
+    let blend = spice_blend_amount(input.meat_grams, input.system);
     rsx! {
         ArtFrame {
             // steak
@@ -323,11 +369,11 @@ fn SpiceArt() -> Element {
                 }
             }
 
-            // legend
-            rect { x: "40", y: "118", width: "9", height: "7", rx: "1", fill: "#f8fafc", stroke: "#d1d5db", stroke_width: "1" }
-            text { x: "52", y: "124", font_size: "7", fill: "#4a1505", "salt" }
-            rect { x: "92", y: "118", width: "9", height: "7", rx: "1", fill: "#b45309" }
-            text { x: "104", y: "124", font_size: "7", fill: "#4a1505", "spice blend" }
+            // legend with live amounts
+            rect { x: "40", y: "114", width: "8", height: "6", rx: "1", fill: "#f8fafc", stroke: "#d1d5db", stroke_width: "1" }
+            text { x: "52", y: "119", font_size: "8", fill: "#4a1505", "salt — {salt}" }
+            rect { x: "40", y: "124", width: "8", height: "6", rx: "1", fill: "#b45309" }
+            text { x: "52", y: "129", font_size: "8", fill: "#4a1505", "spice blend — {blend}" }
         }
     }
 }

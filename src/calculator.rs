@@ -28,6 +28,24 @@ impl UnitSystem {
     }
 }
 
+/// Shared calculator input: the meat weight (always stored in grams) and the chosen unit
+/// system. Provided as context so the step animations can show live amounts too.
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub struct CalcInput {
+    pub meat_grams: f64,
+    pub system: UnitSystem,
+}
+
+impl Default for CalcInput {
+    fn default() -> Self {
+        // Matches the calculator's default of "1" in metric (1 kg).
+        CalcInput {
+            meat_grams: 1000.0,
+            system: UnitSystem::Metric,
+        }
+    }
+}
+
 /// One computed row: an ingredient name, its scaled amount (already formatted in the
 /// chosen unit) and an optional note.
 #[derive(Clone, PartialEq)]
@@ -87,6 +105,35 @@ pub fn compute(meat_grams: f64, system: UnitSystem) -> Vec<ResultLine> {
         .iter()
         .map(|ing| line_for(ing, meat_grams, system))
         .collect()
+}
+
+/// Format the meat weight itself (kg or lb) for display in the slice animation.
+pub fn format_meat(meat_grams: f64, system: UnitSystem) -> String {
+    match system {
+        UnitSystem::Metric => format!("{} kg", round1(meat_grams / 1000.0)),
+        UnitSystem::Imperial => format!("{} lb", round1(meat_grams / GRAMS_PER_LB)),
+    }
+}
+
+/// The formatted amount of a single ingredient by name (empty string if not found).
+pub fn amount_of(name: &str, meat_grams: f64, system: UnitSystem) -> String {
+    INGREDIENTS
+        .iter()
+        .find(|ing| ing.name == name)
+        .map(|ing| line_for(ing, meat_grams, system).amount)
+        .unwrap_or_default()
+}
+
+/// The combined spice blend (every weight ingredient except salt: coriander, pepper, chili).
+pub fn spice_blend_amount(meat_grams: f64, system: UnitSystem) -> String {
+    let grams: f64 = INGREDIENTS
+        .iter()
+        .filter_map(|ing| match ing.measure {
+            Measure::WeightFraction(fraction) if ing.name != "Salt" => Some(meat_grams * fraction),
+            _ => None,
+        })
+        .sum();
+    format_weight(grams, system)
 }
 
 #[cfg(test)]

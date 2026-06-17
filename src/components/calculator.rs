@@ -1,18 +1,19 @@
 //! Interactive spice calculator: enter the meat weight, pick a unit system, and every
 //! ingredient is scaled and re-rendered reactively.
 
-use crate::calculator::{compute, meat_to_grams, UnitSystem};
+use crate::calculator::{compute, meat_to_grams, CalcInput, UnitSystem};
 use dioxus::prelude::*;
 
 #[component]
 pub fn Calculator() -> Element {
-    let mut system = use_signal(|| UnitSystem::Metric);
-    // Keep the raw text (so the field shows exactly what was typed) and the parsed value.
+    // Shared input so the step animations show the same live amounts.
+    let mut input = use_context::<Signal<CalcInput>>();
+    // Keep the raw text locally so the field shows exactly what was typed.
     let mut raw = use_signal(|| "1".to_string());
 
-    let sys = system();
-    let amount = raw().trim().parse::<f64>().unwrap_or(0.0).max(0.0);
-    let lines = compute(meat_to_grams(amount, sys), sys);
+    let sys = input().system;
+    let amount = parse_amount(&raw());
+    let lines = compute(input().meat_grams, sys);
 
     rsx! {
         section { id: "calculator", class: "bg-biltong-50 py-16",
@@ -40,7 +41,11 @@ pub fn Calculator() -> Element {
                                     value: "{raw}",
                                     class: "w-full rounded-l-lg border border-biltong-300 px-3 py-2 \
                                             focus:outline-none focus:ring-2 focus:ring-biltong-500",
-                                    oninput: move |evt| raw.set(evt.value()),
+                                    oninput: move |evt| {
+                                        raw.set(evt.value());
+                                        let grams = meat_to_grams(parse_amount(&evt.value()), input().system);
+                                        input.write().meat_grams = grams;
+                                    },
                                 }
                                 span { class: "inline-flex items-center px-4 rounded-r-lg border \
                                                border-l-0 border-biltong-300 bg-biltong-50 \
@@ -51,10 +56,16 @@ pub fn Calculator() -> Element {
                         }
                         // Unit toggle
                         div { class: "inline-flex rounded-lg ring-1 ring-biltong-300 overflow-hidden",
-                            UnitButton { label: "Metric", active: sys == UnitSystem::Metric,
-                                onclick: move |_| system.set(UnitSystem::Metric) }
-                            UnitButton { label: "Imperial", active: sys == UnitSystem::Imperial,
-                                onclick: move |_| system.set(UnitSystem::Imperial) }
+                            UnitButton {
+                                label: "Metric",
+                                active: sys == UnitSystem::Metric,
+                                onclick: move |_| set_system(input, &raw(), UnitSystem::Metric),
+                            }
+                            UnitButton {
+                                label: "Imperial",
+                                active: sys == UnitSystem::Imperial,
+                                onclick: move |_| set_system(input, &raw(), UnitSystem::Imperial),
+                            }
                         }
                     }
 
@@ -88,6 +99,18 @@ pub fn Calculator() -> Element {
             }
         }
     }
+}
+
+/// Parse the weight field, clamping junk/negatives to 0.
+fn parse_amount(s: &str) -> f64 {
+    s.trim().parse::<f64>().unwrap_or(0.0).max(0.0)
+}
+
+/// Switch unit system, re-deriving the stored grams from the current raw input.
+fn set_system(mut input: Signal<CalcInput>, raw: &str, system: UnitSystem) {
+    let mut st = input.write();
+    st.system = system;
+    st.meat_grams = meat_to_grams(parse_amount(raw), system);
 }
 
 #[component]

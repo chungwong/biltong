@@ -17,6 +17,9 @@ fn main() {
 
 #[component]
 fn App() -> Element {
+    // Shared calculator input, read by both the calculator and the step animations.
+    use_context_provider(|| Signal::new(calculator::CalcInput::default()));
+
     rsx! {
         document::Link { rel: "icon", r#type: "image/svg+xml", href: FAVICON }
         document::Stylesheet { href: TAILWIND_CSS }
