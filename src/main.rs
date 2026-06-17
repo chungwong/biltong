@@ -5,7 +5,7 @@ mod calculator;
 mod components;
 mod recipe;
 
-use components::{Calculator, Footer, Hero, Steps};
+use components::{Calculator, CutDiagram, Footer, Hero, Steps};
 
 /// Tailwind-compiled stylesheet (regenerated from `/tailwind.css` by the `dx` build).
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
@@ -28,6 +28,7 @@ fn App() -> Element {
             Hero {}
             main {
                 Calculator {}
+                CutDiagram {}
                 Steps {}
             }
             Footer {}

@@ -25,6 +25,12 @@ pub fn Hero() -> Element {
                         "Recipe calculator"
                     }
                     a {
+                        href: "#cuts",
+                        class: "px-5 py-2.5 rounded-full border border-biltong-300 \
+                                text-biltong-50 font-semibold hover:bg-biltong-900 transition-colors",
+                        "Beef cuts"
+                    }
+                    a {
                         href: "#steps",
                         class: "px-5 py-2.5 rounded-full border border-biltong-300 \
                                 text-biltong-50 font-semibold hover:bg-biltong-900 transition-colors",
