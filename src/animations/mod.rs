@@ -160,10 +160,14 @@ fn VinegarArt() -> Element {
                 }
             }
 
-            // --- red wine vinegar bottle (left) ---
+            // --- red wine vinegar bottle (left) with its amount beside it ---
             rect { x: "50", y: "14", width: "24", height: "30", rx: "5", fill: "#7f1d1d" }
             rect { x: "53", y: "22", width: "18", height: "10", rx: "1", fill: "#fdf6f0", opacity: "0.9" }
             rect { x: "59", y: "44", width: "6", height: "5", fill: "#450a0a" }
+            text { x: "46", y: "24", text_anchor: "end", font_size: "7", fill: "#7f1d1d", "red wine" }
+            text { x: "46", y: "33", text_anchor: "end", font_size: "7", fill: "#7f1d1d", "vinegar" }
+            text { x: "46", y: "45", text_anchor: "end", font_size: "9", font_weight: "bold", fill: "#4a1505",
+                "{vinegar}" }
             // red droplets
             circle { class: "anim-drop", cx: "62", cy: "50", r: "3.5", fill: "#b91c1c",
                 style: "animation-delay: 0s" }
@@ -172,11 +176,14 @@ fn VinegarArt() -> Element {
             circle { class: "anim-drop", cx: "65", cy: "50", r: "3", fill: "#b91c1c",
                 style: "animation-delay: 1.2s" }
 
-            // --- Worcestershire bottle (right) ---
+            // --- Worcestershire bottle (right) with its amount beside it ---
             rect { x: "116", y: "14", width: "24", height: "30", rx: "5", fill: "#3f2d1a" }
             rect { x: "119", y: "22", width: "18", height: "10", rx: "1", fill: "#fde68a", opacity: "0.9" }
             rect { x: "120", y: "8", width: "16", height: "6", rx: "1", fill: "#f59e0b" }
             rect { x: "125", y: "44", width: "6", height: "5", fill: "#1f1408" }
+            text { x: "144", y: "24", font_size: "7", fill: "#3f2d1a", "Worcester-" }
+            text { x: "144", y: "33", font_size: "7", fill: "#3f2d1a", "shire" }
+            text { x: "144", y: "45", font_size: "9", font_weight: "bold", fill: "#4a1505", "{worcester}" }
             // dark-brown droplets
             circle { class: "anim-drop", cx: "128", cy: "50", r: "3.5", fill: "#3f2d1a",
                 style: "animation-delay: 0.3s" }
@@ -184,12 +191,6 @@ fn VinegarArt() -> Element {
                 style: "animation-delay: 0.9s" }
             circle { class: "anim-drop", cx: "131", cy: "50", r: "3", fill: "#3f2d1a",
                 style: "animation-delay: 1.5s" }
-
-            // --- legend with live amounts ---
-            rect { x: "18", y: "122", width: "8", height: "6", rx: "1", fill: "#b91c1c" }
-            text { x: "30", y: "127", font_size: "8", fill: "#4a1505", "red wine vinegar — {vinegar}" }
-            rect { x: "18", y: "131", width: "8", height: "6", rx: "1", fill: "#3f2d1a" }
-            text { x: "30", y: "136", font_size: "8", fill: "#4a1505", "Worcestershire — {worcester}" }
         }
     }
 }
