@@ -32,25 +32,41 @@ pub fn Calculator() -> Element {
                             span { class: "block text-sm font-semibold text-stone-700 mb-1",
                                 "Amount of beef"
                             }
-                            div { class: "flex",
+                            div { class: "flex rounded-lg ring-1 ring-biltong-300 overflow-hidden",
+                                button {
+                                    r#type: "button",
+                                    "aria-label": "Decrease amount",
+                                    class: "px-4 bg-biltong-50 text-biltong-700 text-xl font-bold \
+                                            leading-none hover:bg-biltong-100 transition-colors",
+                                    onclick: move |_| step_amount(input, raw, -1.0),
+                                    "−"
+                                }
                                 input {
                                     r#type: "number",
                                     min: "0",
                                     step: "0.1",
                                     inputmode: "decimal",
                                     value: "{raw}",
-                                    class: "w-full rounded-l-lg border border-biltong-300 px-3 py-2 \
-                                            focus:outline-none focus:ring-2 focus:ring-biltong-500",
+                                    class: "w-full min-w-0 border-0 px-3 py-2 text-center \
+                                            focus:outline-none focus:ring-2 focus:ring-inset focus:ring-biltong-500",
                                     oninput: move |evt| {
                                         raw.set(evt.value());
                                         let grams = meat_to_grams(parse_amount(&evt.value()), input().system);
                                         input.write().meat_grams = grams;
                                     },
                                 }
-                                span { class: "inline-flex items-center px-4 rounded-r-lg border \
-                                               border-l-0 border-biltong-300 bg-biltong-50 \
-                                               text-stone-600 font-medium",
+                                span { class: "inline-flex items-center px-3 bg-biltong-50 \
+                                               text-stone-600 font-medium border-l border-biltong-200",
                                     "{sys.meat_unit()}"
+                                }
+                                button {
+                                    r#type: "button",
+                                    "aria-label": "Increase amount",
+                                    class: "px-4 bg-biltong-50 text-biltong-700 text-xl font-bold \
+                                            leading-none hover:bg-biltong-100 transition-colors \
+                                            border-l border-biltong-200",
+                                    onclick: move |_| step_amount(input, raw, 1.0),
+                                    "+"
                                 }
                             }
                         }
@@ -104,6 +120,25 @@ pub fn Calculator() -> Element {
 /// Parse the weight field, clamping junk/negatives to 0.
 fn parse_amount(s: &str) -> f64 {
     s.trim().parse::<f64>().unwrap_or(0.0).max(0.0)
+}
+
+/// Step the meat amount via the −/+ buttons. The step is unit-aware (0.5 kg / 1 lb) since
+/// native number spinners don't show on mobile and step too finely on desktop.
+fn step_amount(mut input: Signal<CalcInput>, mut raw: Signal<String>, dir: f64) {
+    let sys = input().system;
+    let mag = match sys {
+        UnitSystem::Metric => 0.5,
+        UnitSystem::Imperial => 1.0,
+    };
+    let next = (parse_amount(&raw()) + dir * mag).max(0.0);
+    // Whole numbers render without a trailing ".0".
+    let text = if (next.fract()).abs() < 1e-9 {
+        format!("{}", next.round() as i64)
+    } else {
+        format!("{next:.1}")
+    };
+    raw.set(text);
+    input.write().meat_grams = meat_to_grams(next, sys);
 }
 
 /// Switch unit system, re-deriving the stored grams from the current raw input.

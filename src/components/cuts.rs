@@ -218,7 +218,7 @@ pub fn CutDiagram() -> Element {
                         },
                         Rating::Divisive => rsx! {
                             span { class: "inline-block px-3 py-1 rounded-full text-sm font-semibold bg-amber-500 text-white",
-                                "↔ Divisive — some swear by it"
+                                "Divisive — some swear by it"
                             }
                         },
                         Rating::Poor => rsx! {
