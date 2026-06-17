@@ -11,6 +11,8 @@ pub fn StepArt(kind: AnimKind) -> Element {
     match kind {
         AnimKind::Slice => rsx! { SliceArt {} },
         AnimKind::Vinegar => rsx! { VinegarArt {} },
+        AnimKind::Toast => rsx! { ToastArt {} },
+        AnimKind::Grind => rsx! { GrindArt {} },
         AnimKind::Spice => rsx! { SpiceArt {} },
         AnimKind::Cure => rsx! { CureArt {} },
         AnimKind::Dry => rsx! { DryArt {} },
@@ -171,7 +173,89 @@ fn VinegarArt() -> Element {
     }
 }
 
-/// Step 3 — spice being sprinkled over the meat.
+/// Step 3 — toasting the coriander seeds in a dry pan over a flame.
+#[component]
+fn ToastArt() -> Element {
+    rsx! {
+        ArtFrame {
+            // flames under the pan (flickering)
+            for (i , cx) in [74.0_f64, 90.0, 106.0].into_iter().enumerate() {
+                g { key: "f{i}", class: "anim-jiggle", style: "animation-delay: {i as f64 * 0.2}s",
+                    path { d: "M{cx} 118 q-7 -11 0 -22 q7 13 0 22 z", fill: "#f97316" }
+                    path { d: "M{cx} 116 q-3 -7 0 -14 q3 9 0 14 z", fill: "#fde047" }
+                }
+            }
+            // pan
+            ellipse { cx: "90", cy: "84", rx: "56", ry: "13", fill: "#6b7280" }
+            ellipse { cx: "90", cy: "81", rx: "49", ry: "10", fill: "#3f4754" }
+            rect { x: "142", y: "79", width: "50", height: "6", rx: "3", fill: "#374151" }
+            // coriander seeds toasting (jiggling)
+            for (i , (cx , cy)) in [
+                (66.0_f64, 82.0_f64),
+                (80.0, 79.0),
+                (94.0, 82.0),
+                (106.0, 80.0),
+                (74.0, 84.0),
+                (100.0, 84.0),
+            ]
+                .into_iter()
+                .enumerate()
+            {
+                ellipse {
+                    key: "s{i}",
+                    class: "anim-jiggle",
+                    style: "animation-delay: {i as f64 * 0.15}s",
+                    cx: "{cx}",
+                    cy: "{cy}",
+                    rx: "3",
+                    ry: "2.5",
+                    fill: "#c9a36a",
+                }
+            }
+            // heat shimmer rising off the pan
+            for (i , x) in [72.0_f64, 90.0, 108.0].into_iter().enumerate() {
+                path {
+                    key: "h{i}",
+                    class: "anim-rise",
+                    d: "M{x} 70 q5 -5 0 -10 q-5 -5 0 -10",
+                    fill: "none",
+                    stroke: "#f59e0b",
+                    stroke_width: "2",
+                    stroke_linecap: "round",
+                    opacity: "0.7",
+                    style: "animation-delay: {i as f64 * 0.4}s",
+                }
+            }
+        }
+    }
+}
+
+/// Step 4 — grinding the toasted spices in a mortar and pestle.
+#[component]
+fn GrindArt() -> Element {
+    rsx! {
+        ArtFrame {
+            // mortar bowl
+            ellipse { cx: "100", cy: "76", rx: "58", ry: "11", fill: "#c9ad93" }
+            path { d: "M44 76 Q100 134 156 76 Z", fill: "#d8a47f" }
+            ellipse { cx: "100", cy: "76", rx: "47", ry: "8", fill: "#6b5a48" }
+            // toasted seeds / powder in the cavity
+            for (i , (cx , cy)) in [(86.0_f64, 78.0_f64), (104.0, 79.0), (96.0, 80.0), (112.0, 77.0)]
+                .into_iter()
+                .enumerate()
+            {
+                ellipse { key: "g{i}", cx: "{cx}", cy: "{cy}", rx: "2.5", ry: "2", fill: "#c9a36a" }
+            }
+            // pestle, rocking as it grinds (pivots at the hand end, top of the bbox)
+            g { class: "anim-sway",
+                rect { x: "96", y: "18", width: "10", height: "50", rx: "5", fill: "#cbb89f" }
+                ellipse { cx: "101", cy: "74", rx: "11", ry: "9", fill: "#b9a589" }
+            }
+        }
+    }
+}
+
+/// Step 5 — spice being sprinkled over the meat.
 #[component]
 fn SpiceArt() -> Element {
     rsx! {

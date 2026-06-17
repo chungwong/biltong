@@ -47,6 +47,30 @@
   }
 }
 
+@keyframes biltong-jiggle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2.5px);
+  }
+}
+
+@keyframes biltong-rise {
+  0% {
+    transform: translateY(2px);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+}
+
 @keyframes biltong-drop {
   0% {
     transform: translateY(-6px);
@@ -138,6 +162,12 @@
   transform-origin: center;
   animation: biltong-pulse 2s ease-in-out infinite;
 }
+.anim-jiggle {
+  animation: biltong-jiggle 0.6s ease-in-out infinite;
+}
+.anim-rise {
+  animation: biltong-rise 2s ease-out infinite;
+}
 .anim-drop {
   animation: biltong-drop 2s ease-in infinite;
 }
@@ -169,6 +199,8 @@
 @media (prefers-reduced-motion: reduce) {
   .anim-slice,
   .anim-pulse,
+  .anim-jiggle,
+  .anim-rise,
   .anim-drop,
   .anim-sprinkle,
   .anim-tick,

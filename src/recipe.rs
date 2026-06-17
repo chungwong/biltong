@@ -14,6 +14,8 @@
 pub enum AnimKind {
     Slice,
     Vinegar,
+    Toast,
+    Grind,
     Spice,
     Cure,
     Dry,
@@ -44,11 +46,24 @@ pub const STEPS: &[Step] = &[
         anim: AnimKind::Vinegar,
     },
     Step {
+        title: "Toast the coriander",
+        body: "Toast the coriander seeds in a dry pan over medium heat, shaking often, until \
+               they turn fragrant and start to pop — a minute or two. Toasting wakes up the \
+               aroma that defines biltong. Tip them out to cool.",
+        anim: AnimKind::Toast,
+    },
+    Step {
+        title: "Grind the spices",
+        body: "Once cool, grind the coriander and peppercorns (and the chili flakes) to a \
+               coarse crack — not a fine powder, so you keep texture and get a good spice \
+               crust. Combine everything into one spice blend.",
+        anim: AnimKind::Grind,
+    },
+    Step {
         title: "Salt & spice the meat",
-        body: "Toast the coriander and grind it coarse, then coarsely grind the peppercorns \
-               and chili flakes and combine into a spice blend. Sprinkle half the salt and \
-               enough blend to coat, flip, and add the rest. Hold a little blend back to \
-               dust on at the end for a nice spice crust.",
+        body: "Sprinkle half the salt and enough spice blend to coat the steaks, then flip \
+               and add the rest. Hold a little blend back to dust on at the end for an extra \
+               spice crust.",
         anim: AnimKind::Spice,
     },
     Step {
