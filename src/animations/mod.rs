@@ -2,7 +2,9 @@
 //! in `tailwind.css`. Each step gets its own small component; [`StepArt`] dispatches to
 //! the right one based on the step's [`AnimKind`].
 
-use crate::calculator::{amount_of, drying_temp, format_meat, spice_blend_amount, CalcInput};
+use crate::calculator::{
+    amount_of, drying_temp, format_meat, slice_thickness, spice_blend_amount, CalcInput,
+};
 use crate::recipe::AnimKind;
 use dioxus::prelude::*;
 
@@ -46,6 +48,7 @@ fn ArtFrame(children: Element) -> Element {
 fn SliceArt() -> Element {
     let input = calc_input();
     let meat = format_meat(input.meat_grams, input.system);
+    let thickness = slice_thickness(input.system);
     rsx! {
         ArtFrame {
             // "cut with the grain" label + a direction arrow that runs along the grain
@@ -110,7 +113,7 @@ fn SliceArt() -> Element {
                     font_size: "9",
                     font_weight: "bold",
                     fill: "#4a1505",
-                    "2 cm"
+                    "{thickness}"
                 }
             }
 

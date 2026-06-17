@@ -107,6 +107,14 @@ pub fn compute(meat_grams: f64, system: UnitSystem) -> Vec<ResultLine> {
         .collect()
 }
 
+/// Slice thickness for the cut step, in the chosen unit system (2 cm ≈ ¾ in).
+pub fn slice_thickness(system: UnitSystem) -> &'static str {
+    match system {
+        UnitSystem::Metric => "2 cm",
+        UnitSystem::Imperial => "¾ in",
+    }
+}
+
 /// Target drying temperature range, in the chosen unit system. Shared by the dry-step
 /// text and its animation so they always agree.
 pub fn drying_temp(system: UnitSystem) -> &'static str {

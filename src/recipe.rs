@@ -35,8 +35,8 @@ pub const STEPS: &[Step] = &[
     Step {
         title: "Choose & slice the beef",
         body: "Use a lean cut like bottom round or top round. Trim off the silver skin, \
-               gristle and soft fat, then cut WITH the grain into 2 cm thick steaks — \
-               about the width of your thumb.",
+               gristle and soft fat, then cut WITH the grain into {thickness} thick steaks \
+               — about the width of your thumb.",
         anim: AnimKind::Slice,
     },
     Step {
