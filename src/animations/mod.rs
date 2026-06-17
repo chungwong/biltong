@@ -382,29 +382,56 @@ fn SpiceArt() -> Element {
     }
 }
 
-/// Step 6 — resting in the fridge: a ticking clock.
+/// Step 6 — bagging the spiced slices and curing them in the fridge.
 #[component]
 fn CureArt() -> Element {
     rsx! {
         ArtFrame {
-            // container of curing meat
-            rect { x: "26", y: "70", width: "70", height: "44", rx: "8", fill: "#d8a47f" }
-            rect { x: "34", y: "78", width: "54", height: "10", rx: "5", fill: "#7c2d12" }
-            rect { x: "34", y: "92", width: "54", height: "10", rx: "5", fill: "#7c2d12" }
-            // clock
-            circle { cx: "146", cy: "70", r: "34", fill: "#fdf6f0", stroke: "#4a1505", stroke_width: "4" }
-            circle { cx: "146", cy: "70", r: "3", fill: "#4a1505" }
-            // rotating hand (animated) — pivots about the clock centre (146, 70)
-            g { class: "anim-tick", style: "transform-box: view-box; transform-origin: 146px 70px;",
-                line { x1: "146", y1: "70", x2: "146", y2: "46", stroke: "#7c2d12", stroke_width: "4",
+            // zip-lock bag (translucent plastic)
+            rect { x: "44", y: "44", width: "78", height: "76", rx: "10", fill: "#e8f1f8",
+                stroke: "#93b4cb", stroke_width: "2" }
+            // zip seal + slider
+            line { x1: "48", y1: "51", x2: "118", y2: "51", stroke: "#7aa3c0", stroke_width: "1.5" }
+            line { x1: "48", y1: "54", x2: "118", y2: "54", stroke: "#7aa3c0", stroke_width: "1.5" }
+            rect { x: "112", y: "49", width: "8", height: "7", rx: "1.5", fill: "#7aa3c0" }
+            // spiced strips already in the bag
+            for y in [74.0_f64, 88.0, 102.0] {
+                g { key: "strip{y}",
+                    rect { x: "54", y: "{y}", width: "54", height: "9", rx: "4", fill: "#7c2d12" }
+                    ellipse { cx: "81", cy: "{y + 4.0}", rx: "20", ry: "2", fill: "#a85a32", opacity: "0.5" }
+                }
+            }
+            // spice flecks
+            for (i , (x , y)) in [
+                (66.0_f64, 70.0_f64),
+                (92.0, 82.0),
+                (100.0, 96.0),
+                (62.0, 98.0),
+                (86.0, 72.0),
+            ]
+                .into_iter()
+                .enumerate()
+            {
+                circle { key: "fleck{i}", cx: "{x}", cy: "{y}", r: "1.5", fill: "#b45309" }
+            }
+            // slices dropping into the bag (animated, staggered)
+            for (i , x) in [72.0_f64, 88.0].into_iter().enumerate() {
+                g { key: "drop{i}", class: "anim-drop", style: "animation-delay: {i as f64 * 1.0}s",
+                    rect { x: "{x - 20.0}", y: "28", width: "40", height: "9", rx: "4", fill: "#7c2d12" }
+                }
+            }
+            // cure time — compact clock + caption on the right
+            circle { cx: "160", cy: "58", r: "22", fill: "#fdf6f0", stroke: "#4a1505", stroke_width: "3" }
+            circle { cx: "160", cy: "58", r: "2.5", fill: "#4a1505" }
+            g { class: "anim-tick", style: "transform-box: view-box; transform-origin: 160px 58px;",
+                line { x1: "160", y1: "58", x2: "160", y2: "41", stroke: "#7c2d12", stroke_width: "3",
                     stroke_linecap: "round" }
             }
-            line { x1: "146", y1: "70", x2: "164", y2: "70", stroke: "#a85a32", stroke_width: "3",
+            line { x1: "160", y1: "58", x2: "173", y2: "58", stroke: "#a85a32", stroke_width: "2",
                 stroke_linecap: "round" }
-            // cure time, under the clock
-            text { x: "146", y: "120", text_anchor: "middle", font_size: "12", font_weight: "bold",
+            text { x: "160", y: "96", text_anchor: "middle", font_size: "11", font_weight: "bold",
                 fill: "#4a1505", "24–36 hrs" }
-            text { x: "146", y: "132", text_anchor: "middle", font_size: "8", fill: "#7c2d12",
+            text { x: "160", y: "107", text_anchor: "middle", font_size: "7", fill: "#7c2d12",
                 "flip every 12 h" }
         }
     }

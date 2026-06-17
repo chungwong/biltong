@@ -48,7 +48,7 @@ pub const STEPS: &[Step] = &[
     Step {
         title: "Toast the coriander",
         body: "Toast the coriander seeds in a dry pan over medium heat, shaking often, until \
-               they turn fragrant and start to pop — a minute or two. Toasting wakes up the \
+               they turn fragrant and start to pop — about 3–5 minutes. Toasting wakes up the \
                aroma that defines biltong. Tip them out to cool.",
         anim: AnimKind::Toast,
     },
