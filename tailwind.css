@@ -18,6 +18,16 @@
   --font-display: "Georgia", "Times New Roman", serif;
 }
 
+/* Offset anchor jumps so section headings clear the sticky nav bar (h-14 = 3.5rem). */
+html {
+  scroll-padding-top: 4rem;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 /*
  * Step animations — plain CSS keyframes (Tailwind passes these through untouched).
  * Each SVG component applies one of the .anim-* classes. All motion is disabled for

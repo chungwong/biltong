@@ -5,7 +5,7 @@ mod calculator;
 mod components;
 mod recipe;
 
-use components::{Calculator, CutDiagram, Footer, Hero, Steps};
+use components::{Calculator, CutDiagram, Footer, Hero, NavBar, Steps};
 
 /// Tailwind-compiled stylesheet (regenerated from `/tailwind.css` by the `dx` build).
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
@@ -25,6 +25,7 @@ fn App() -> Element {
         document::Stylesheet { href: TAILWIND_CSS }
 
         div { class: "min-h-screen bg-biltong-50 text-stone-800",
+            NavBar {}
             Hero {}
             main {
                 Calculator {}
