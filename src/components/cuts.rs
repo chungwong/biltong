@@ -6,13 +6,22 @@
 
 use dioxus::prelude::*;
 
+/// How well a cut suits biltong. `Divisive` covers cuts (like brisket) that some makers
+/// swear by and others avoid.
+#[derive(Clone, Copy, PartialEq)]
+enum Rating {
+    Good,
+    Divisive,
+    Poor,
+}
+
 struct Cut {
     /// Short label drawn on the diagram.
     label: &'static str,
     /// Full name shown in the info panel.
     name: &'static str,
-    /// Whether the cut is well suited to biltong.
-    good: bool,
+    /// How well the cut suits biltong.
+    rating: Rating,
     note: &'static str,
     /// Polygon points for the region (SVG user units).
     points: &'static str,
@@ -26,7 +35,7 @@ const CUTS: &[Cut] = &[
     Cut {
         label: "Silverside",
         name: "Silverside (bottom round)",
-        good: true,
+        rating: Rating::Good,
         note: "Lean and even-grained — a top biltong cut. This recipe's bottom round comes \
                from here.",
         points: "288,90 356,96 354,123 288,122",
@@ -36,7 +45,7 @@ const CUTS: &[Cut] = &[
     Cut {
         label: "Topside",
         name: "Topside (top round)",
-        good: true,
+        rating: Rating::Good,
         note: "Lean and even — excellent for biltong; this recipe's top round.",
         points: "288,56 338,60 356,96 288,90",
         lx: 316.0,
@@ -45,7 +54,7 @@ const CUTS: &[Cut] = &[
     Cut {
         label: "Knuckle",
         name: "Knuckle (round)",
-        good: true,
+        rating: Rating::Good,
         note: "A lean hindquarter cut — great for biltong.",
         points: "288,122 354,123 349,152 300,152",
         lx: 318.0,
@@ -54,7 +63,7 @@ const CUTS: &[Cut] = &[
     Cut {
         label: "Rump",
         name: "Rump",
-        good: true,
+        rating: Rating::Good,
         note: "Lean and full-flavoured with a good grain — a biltong favourite.",
         points: "235,54 288,56 288,105 235,105",
         lx: 261.0,
@@ -63,7 +72,7 @@ const CUTS: &[Cut] = &[
     Cut {
         label: "Striploin",
         name: "Striploin / short loin",
-        good: true,
+        rating: Rating::Good,
         note: "Very lean and tender; premium-priced but superb biltong.",
         points: "185,55 235,54 235,105 185,105",
         lx: 210.0,
@@ -72,7 +81,7 @@ const CUTS: &[Cut] = &[
     Cut {
         label: "Tenderloin",
         name: "Tenderloin (eye fillet)",
-        good: true,
+        rating: Rating::Good,
         note: "Ultra-lean and tender — pricey, but makes lovely biltong.",
         points: "185,105 288,105 288,120 185,120",
         lx: 236.0,
@@ -81,7 +90,7 @@ const CUTS: &[Cut] = &[
     Cut {
         label: "Flank",
         name: "Flank",
-        good: true,
+        rating: Rating::Good,
         note: "Lean and tasty biltong — just slice with the grain, as it is coarse.",
         points: "140,105 185,105 185,120 288,120 288,156 140,156",
         lx: 215.0,
@@ -90,7 +99,7 @@ const CUTS: &[Cut] = &[
     Cut {
         label: "Cube roll",
         name: "Cube roll (ribeye)",
-        good: false,
+        rating: Rating::Poor,
         note: "Well-marbled and fatty — too rich for good biltong.",
         points: "135,58 185,55 185,105 135,105",
         lx: 160.0,
@@ -99,7 +108,7 @@ const CUTS: &[Cut] = &[
     Cut {
         label: "Blade",
         name: "Blade (shoulder)",
-        good: false,
+        rating: Rating::Poor,
         note: "Sinewy, with a seam of connective tissue — better braised than dried.",
         points: "92,62 135,58 135,105 92,105",
         lx: 113.0,
@@ -108,7 +117,7 @@ const CUTS: &[Cut] = &[
     Cut {
         label: "Chuck",
         name: "Chuck (neck/shoulder)",
-        good: false,
+        rating: Rating::Poor,
         note: "Marbled and sinewy — better braised than dried.",
         points: "44,74 92,62 92,105 50,105",
         lx: 71.0,
@@ -117,8 +126,9 @@ const CUTS: &[Cut] = &[
     Cut {
         label: "Brisket",
         name: "Brisket",
-        good: false,
-        note: "Fatty and coarse-grained; better cured or braised than dried.",
+        rating: Rating::Divisive,
+        note: "Divisive: some makers love a well-trimmed brisket biltong, others find it \
+               too fatty. Trim hard and slice thin if you try it.",
         points: "50,105 140,105 140,156 50,156",
         lx: 92.0,
         ly: 132.0,
@@ -126,7 +136,7 @@ const CUTS: &[Cut] = &[
     Cut {
         label: "Shin",
         name: "Fore shank (shin)",
-        good: false,
+        rating: Rating::Poor,
         note: "Tough and gelatinous — wonderful slow-braised (osso buco), but not for biltong.",
         points: "72,156 96,156 92,206 78,206",
         lx: 84.0,
@@ -135,7 +145,7 @@ const CUTS: &[Cut] = &[
     Cut {
         label: "Shin",
         name: "Hind shank (shin)",
-        good: false,
+        rating: Rating::Poor,
         note: "Tough and gelatinous — wonderful slow-braised, but not for biltong.",
         points: "300,152 322,152 318,206 305,206",
         lx: 311.0,
@@ -173,7 +183,7 @@ pub fn CutDiagram() -> Element {
                             onclick: move |_| selected.set(i),
                             polygon {
                                 points: "{c.points}",
-                                fill: cut_fill(c.good, i == sel),
+                                fill: cut_fill(c.rating, i == sel),
                                 stroke: if i == sel { "#2f1a0a" } else { "#ffffff" },
                                 stroke_width: if i == sel { "2.5" } else { "1.3" },
                             }
@@ -199,24 +209,36 @@ pub fn CutDiagram() -> Element {
                     h3 { class: "font-display text-2xl font-semibold text-biltong-900 mb-3",
                         "{cut.name}"
                     }
-                    if cut.good {
-                        span { class: "inline-block px-3 py-1 rounded-full text-sm font-semibold bg-herb-600 text-white",
-                            "✓ Great for biltong"
-                        }
-                    } else {
-                        span { class: "inline-block px-3 py-1 rounded-full text-sm font-semibold bg-stone-200 text-stone-600",
-                            "Not ideal"
-                        }
+                    match cut.rating {
+                        Rating::Good => rsx! {
+                            span { class: "inline-block px-3 py-1 rounded-full text-sm font-semibold bg-herb-600 text-white",
+                                "✓ Great for biltong"
+                            }
+                        },
+                        Rating::Divisive => rsx! {
+                            span { class: "inline-block px-3 py-1 rounded-full text-sm font-semibold bg-amber-500 text-white",
+                                "↔ Divisive — some swear by it"
+                            }
+                        },
+                        Rating::Poor => rsx! {
+                            span { class: "inline-block px-3 py-1 rounded-full text-sm font-semibold bg-stone-200 text-stone-600",
+                                "Not ideal"
+                            }
+                        },
                     }
                     p { class: "text-stone-600 leading-relaxed mt-3", "{cut.note}" }
                 }
             }
 
             // legend
-            div { class: "flex items-center justify-center gap-6 mt-8 text-sm text-stone-600",
+            div { class: "flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-8 text-sm text-stone-600",
                 span { class: "flex items-center gap-2",
                     span { class: "inline-block w-4 h-4 rounded", style: "background:#9caf88" }
                     "Good for biltong"
+                }
+                span { class: "flex items-center gap-2",
+                    span { class: "inline-block w-4 h-4 rounded", style: "background:#e3b34e" }
+                    "Worth a try (divisive)"
                 }
                 span { class: "flex items-center gap-2",
                     span { class: "inline-block w-4 h-4 rounded", style: "background:#d8a47f" }
@@ -227,12 +249,14 @@ pub fn CutDiagram() -> Element {
     }
 }
 
-/// Region fill colour from (suitable-for-biltong, currently-selected).
-fn cut_fill(good: bool, selected: bool) -> &'static str {
-    match (good, selected) {
-        (true, true) => "#6f8f5a",
-        (true, false) => "#9caf88",
-        (false, true) => "#b06a3e",
-        (false, false) => "#d8a47f",
+/// Region fill colour from (biltong rating, currently-selected).
+fn cut_fill(rating: Rating, selected: bool) -> &'static str {
+    match (rating, selected) {
+        (Rating::Good, true) => "#6f8f5a",
+        (Rating::Good, false) => "#9caf88",
+        (Rating::Divisive, true) => "#c2922f",
+        (Rating::Divisive, false) => "#e3b34e",
+        (Rating::Poor, true) => "#b06a3e",
+        (Rating::Poor, false) => "#d8a47f",
     }
 }
