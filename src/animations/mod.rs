@@ -2,7 +2,7 @@
 //! in `tailwind.css`. Each step gets its own small component; [`StepArt`] dispatches to
 //! the right one based on the step's [`AnimKind`].
 
-use crate::calculator::{amount_of, format_meat, spice_blend_amount, CalcInput};
+use crate::calculator::{amount_of, format_meat, spice_blend_amount, CalcInput, UnitSystem};
 use crate::recipe::AnimKind;
 use dioxus::prelude::*;
 
@@ -402,11 +402,44 @@ fn CureArt() -> Element {
     }
 }
 
-/// Step 7 — strips hanging and drying with airflow.
+/// Step 7 — strips hanging and drying with airflow, plus the target weather conditions.
 #[component]
 fn DryArt() -> Element {
+    let input = calc_input();
+    let temp = match input.system {
+        UnitSystem::Metric => "21–27 °C",
+        UnitSystem::Imperial => "70–80 °F",
+    };
     rsx! {
         ArtFrame {
+            // --- target drying conditions ---
+            // sun + temperature
+            circle { cx: "13", cy: "11", r: "3.5", fill: "#f59e0b" }
+            for (i , (x1 , y1 , x2 , y2)) in [
+                (13.0_f64, 3.0_f64, 13.0_f64, 6.0_f64),
+                (13.0, 16.0, 13.0, 19.0),
+                (5.0, 11.0, 8.0, 11.0),
+                (18.0, 11.0, 21.0, 11.0),
+            ]
+                .into_iter()
+                .enumerate()
+            {
+                line {
+                    key: "ray{i}",
+                    x1: "{x1}",
+                    y1: "{y1}",
+                    x2: "{x2}",
+                    y2: "{y2}",
+                    stroke: "#f59e0b",
+                    stroke_width: "1.5",
+                }
+            }
+            text { x: "24", y: "14", font_size: "8", font_weight: "bold", fill: "#4a1505", "{temp}" }
+            // water drop + humidity
+            path { d: "M112 5 q4 5 0 10 q-4 -5 0 -10 z", fill: "#3b82f6" }
+            text { x: "120", y: "14", font_size: "8", font_weight: "bold", fill: "#4a1505",
+                "50–60% humidity" }
+
             // hanging rail
             line { x1: "20", y1: "24", x2: "180", y2: "24", stroke: "#4a1505", stroke_width: "4",
                 stroke_linecap: "round" }
