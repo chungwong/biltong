@@ -105,24 +105,68 @@ fn SliceArt() -> Element {
     }
 }
 
-/// Step 2 — vinegar droplets falling onto the strips.
+/// Step 2 — the two sauces (red wine vinegar + Worcestershire) raining onto a tray of
+/// sliced beef seen from above (orthogonal view).
 #[component]
 fn VinegarArt() -> Element {
     rsx! {
         ArtFrame {
-            // bowl of strips
-            path { d: "M40 96 Q100 132 160 96 L160 86 Q100 110 40 86 Z", fill: "#a85a32" }
-            rect { x: "54", y: "80", width: "92", height: "12", rx: "6", fill: "#7c2d12" }
-            // bottle
-            rect { x: "150", y: "18", width: "26", height: "40", rx: "5", fill: "#4d7c0f" }
-            rect { x: "158", y: "8", width: "10", height: "12", rx: "2", fill: "#3f6212" }
-            // falling droplets (animated, staggered)
-            circle { class: "anim-drop", cx: "92", cy: "44", r: "4", fill: "#b45309",
+            // --- tray of sliced beef, top-down ---
+            rect {
+                x: "18",
+                y: "72",
+                width: "164",
+                height: "48",
+                rx: "6",
+                fill: "#c9ad93",
+                stroke: "#a98a6f",
+                stroke_width: "2",
+            }
+            for (i , x) in [28.0_f64, 58.0, 88.0, 118.0, 148.0].into_iter().enumerate() {
+                g { key: "{i}",
+                    rect { x: "{x}", y: "78", width: "20", height: "36", rx: "4", fill: "#7c2d12" }
+                    line {
+                        x1: "{x + 10.0}",
+                        y1: "82",
+                        x2: "{x + 10.0}",
+                        y2: "110",
+                        stroke: "#a85a32",
+                        stroke_width: "1.5",
+                        opacity: "0.5",
+                    }
+                }
+            }
+
+            // --- red wine vinegar bottle (left) ---
+            rect { x: "50", y: "14", width: "24", height: "30", rx: "5", fill: "#7f1d1d" }
+            rect { x: "53", y: "22", width: "18", height: "10", rx: "1", fill: "#fdf6f0", opacity: "0.9" }
+            rect { x: "59", y: "44", width: "6", height: "5", fill: "#450a0a" }
+            // red droplets
+            circle { class: "anim-drop", cx: "62", cy: "50", r: "3.5", fill: "#b91c1c",
                 style: "animation-delay: 0s" }
-            circle { class: "anim-drop", cx: "108", cy: "44", r: "3.5", fill: "#b45309",
-                style: "animation-delay: 0.5s" }
-            circle { class: "anim-drop", cx: "100", cy: "44", r: "3", fill: "#b45309",
-                style: "animation-delay: 1s" }
+            circle { class: "anim-drop", cx: "59", cy: "50", r: "3", fill: "#b91c1c",
+                style: "animation-delay: 0.6s" }
+            circle { class: "anim-drop", cx: "65", cy: "50", r: "3", fill: "#b91c1c",
+                style: "animation-delay: 1.2s" }
+
+            // --- Worcestershire bottle (right) ---
+            rect { x: "116", y: "14", width: "24", height: "30", rx: "5", fill: "#3f2d1a" }
+            rect { x: "119", y: "22", width: "18", height: "10", rx: "1", fill: "#fde68a", opacity: "0.9" }
+            rect { x: "120", y: "8", width: "16", height: "6", rx: "1", fill: "#f59e0b" }
+            rect { x: "125", y: "44", width: "6", height: "5", fill: "#1f1408" }
+            // dark-brown droplets
+            circle { class: "anim-drop", cx: "128", cy: "50", r: "3.5", fill: "#3f2d1a",
+                style: "animation-delay: 0.3s" }
+            circle { class: "anim-drop", cx: "125", cy: "50", r: "3", fill: "#3f2d1a",
+                style: "animation-delay: 0.9s" }
+            circle { class: "anim-drop", cx: "131", cy: "50", r: "3", fill: "#3f2d1a",
+                style: "animation-delay: 1.5s" }
+
+            // --- legend ---
+            rect { x: "18", y: "126", width: "9", height: "7", rx: "1", fill: "#b91c1c" }
+            text { x: "30", y: "132", font_size: "7", fill: "#4a1505", "red wine vinegar" }
+            rect { x: "104", y: "126", width: "9", height: "7", rx: "1", fill: "#3f2d1a" }
+            text { x: "116", y: "132", font_size: "7", fill: "#4a1505", "Worcestershire" }
         }
     }
 }
