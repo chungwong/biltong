@@ -1,9 +1,8 @@
-//! Interactive beef-cuts diagram. Tap (mobile) or click (mouse) a cut on the cow to see
-//! whether it suits biltong; the lean hindquarter cuts are highlighted green.
-//!
-//! The cow is an MLA-style side profile (emulated, not copied). Cut regions tile the body
-//! as straight-edged polygons; the fore/hind shanks are drawn as symmetric legs and are
-//! themselves selectable "Shin" cuts.
+//! Interactive beef-cuts diagram, styled after the MLA "Australian Beef Cuts" chart: a
+//! vertical side-of-beef with the hindquarter (round/rump) at the top and the forequarter
+//! (chuck/brisket) at the bottom. Tap (mobile) or click (mouse) a cut to see whether it
+//! suits biltong; the lean cuts good for biltong are highlighted green. Layout emulated,
+//! not copied.
 
 use dioxus::prelude::*;
 
@@ -17,97 +16,134 @@ struct Cut {
     note: &'static str,
     /// Polygon points for the region (SVG user units).
     points: &'static str,
-    /// Label centre.
+    /// Label centre and rotation (degrees; non-zero for the thin tenderloin strip).
     lx: f64,
     ly: f64,
+    rot: f64,
 }
 
-// Round is first so it is the default selection (the cut this recipe uses). Body cuts come
-// before the shanks so the shank legs draw on top of the haunch/brisket.
+// Silverside is first so it is the default selection (this recipe's bottom round).
 const CUTS: &[Cut] = &[
     Cut {
-        label: "Round",
-        name: "Round — topside, silverside & eye",
+        label: "Silverside",
+        name: "Silverside (bottom round)",
         good: true,
-        note: "Lean, even-grained and the classic biltong cut. This recipe's bottom/top \
-               round comes from here.",
-        points: "250,100 300,100 312,116 300,134 250,133",
-        lx: 276.0,
-        ly: 118.0,
+        note: "Lean and even-grained — a top biltong cut. This recipe's bottom round comes \
+               from here.",
+        points: "120,24 152,24 172,50 104,50",
+        lx: 138.0,
+        ly: 40.0,
+        rot: 0.0,
+    },
+    Cut {
+        label: "Topside",
+        name: "Topside (top round)",
+        good: true,
+        note: "Lean and even — excellent for biltong; this recipe's top round.",
+        points: "104,50 138,50 139,112 94,112",
+        lx: 116.0,
+        ly: 84.0,
+        rot: 0.0,
+    },
+    Cut {
+        label: "Knuckle",
+        name: "Knuckle (round)",
+        good: true,
+        note: "A lean hindquarter cut — great for biltong.",
+        points: "138,50 172,50 180,74 184,112 139,112",
+        lx: 161.0,
+        ly: 90.0,
+        rot: 0.0,
     },
     Cut {
         label: "Rump",
         name: "Rump",
         good: true,
         note: "Lean and full-flavoured with a good grain — a biltong favourite.",
-        points: "250,60 300,60 300,100 250,100",
-        lx: 275.0,
-        ly: 82.0,
+        points: "94,112 184,112 180,150 96,150",
+        lx: 139.0,
+        ly: 133.0,
+        rot: 0.0,
     },
     Cut {
-        label: "Loin",
-        name: "Striploin / short loin (incl. fillet)",
+        label: "Striploin",
+        name: "Striploin / short loin",
         good: true,
-        note: "Very lean and tender; makes excellent — if premium — biltong.",
-        points: "200,62 250,60 250,100 200,100",
-        lx: 225.0,
-        ly: 83.0,
+        note: "Very lean and tender; premium-priced but superb biltong.",
+        points: "96,150 130,150 130,228 92,228 86,190",
+        lx: 110.0,
+        ly: 193.0,
+        rot: 0.0,
     },
     Cut {
-        label: "Rib",
-        name: "Rib",
-        good: false,
-        note: "Well-marbled and fatty — too rich for good biltong.",
-        points: "150,66 200,62 200,100 150,100",
-        lx: 175.0,
-        ly: 84.0,
-    },
-    Cut {
-        label: "Chuck",
-        name: "Chuck (shoulder)",
-        good: false,
-        note: "Flavourful but marbled and sinewy — better braised than dried.",
-        points: "95,72 150,66 150,100 95,100",
-        lx: 121.0,
-        ly: 87.0,
-    },
-    Cut {
-        label: "Brisket",
-        name: "Brisket",
-        good: false,
-        note: "Fatty and coarse-grained; better cured or braised than dried.",
-        points: "95,100 150,100 150,130 95,126",
-        lx: 121.0,
-        ly: 116.0,
+        label: "Tenderloin",
+        name: "Tenderloin (eye fillet)",
+        good: true,
+        note: "Ultra-lean and tender — pricey, but makes lovely biltong.",
+        points: "130,150 148,150 148,228 130,228",
+        lx: 139.0,
+        ly: 189.0,
+        rot: -90.0,
     },
     Cut {
         label: "Flank",
         name: "Flank",
         good: false,
         note: "Lean but very coarse-grained; can turn out chewy.",
-        points: "150,100 250,100 250,133 150,130",
-        lx: 200.0,
-        ly: 117.0,
+        points: "148,150 180,150 186,190 178,228 148,228",
+        lx: 165.0,
+        ly: 193.0,
+        rot: 0.0,
     },
     Cut {
-        label: "Shin",
-        name: "Fore shank (shin)",
+        label: "Cube roll",
+        name: "Cube roll (ribeye)",
         good: false,
-        note: "Tough and full of connective tissue — wonderful slow-braised (osso buco), \
-               but not for biltong.",
-        points: "109,124 127,124 126,158 124,192 112,192 110,158",
-        lx: 118.0,
-        ly: 150.0,
+        note: "Well-marbled and fatty — too rich for good biltong.",
+        points: "92,228 178,228 182,290 84,290",
+        lx: 132.0,
+        ly: 260.0,
+        rot: 0.0,
+    },
+    Cut {
+        label: "Chuck",
+        name: "Chuck (shoulder)",
+        good: false,
+        note: "Marbled and sinewy — better braised than dried.",
+        points: "84,290 182,290 160,358 120,358",
+        lx: 128.0,
+        ly: 326.0,
+        rot: 0.0,
+    },
+    Cut {
+        label: "Brisket",
+        name: "Brisket",
+        good: false,
+        note: "Fatty and coarse-grained; better cured or braised than dried.",
+        points: "180,255 206,260 206,296 180,298",
+        lx: 192.0,
+        ly: 279.0,
+        rot: 0.0,
     },
     Cut {
         label: "Shin",
         name: "Hind shank (shin)",
         good: false,
-        note: "Tough and full of connective tissue — wonderful slow-braised, but not for \
-               biltong.",
-        points: "287,128 305,128 304,158 302,192 290,192 288,158",
-        lx: 296.0,
-        ly: 152.0,
+        note: "Tough and gelatinous — wonderful slow-braised (osso buco), but not for biltong.",
+        points: "173,52 215,50 214,74 181,80",
+        lx: 198.0,
+        ly: 66.0,
+        rot: 0.0,
+    },
+    Cut {
+        label: "Shin",
+        name: "Fore shank (shin)",
+        good: false,
+        note: "Tough and gelatinous — wonderful slow-braised, but not for biltong.",
+        points: "175,316 214,322 206,348 165,344",
+        lx: 197.0,
+        ly: 334.0,
+        rot: 0.0,
     },
 ];
 
@@ -123,33 +159,17 @@ pub fn CutDiagram() -> Element {
                 "Which cut of beef?"
             }
             p { class: "text-center text-stone-600 mb-8 max-w-xl mx-auto",
-                "Lean cuts from the hindquarter make the best biltong. Tap a cut on the cow \
-                 to see whether it works."
+                "Lean cuts from the hindquarter make the best biltong. Tap a cut to see \
+                 whether it works."
             }
 
             div { class: "grid md:grid-cols-2 gap-8 items-center",
                 // --- diagram ---
                 svg {
-                    class: "w-full select-none",
-                    view_box: "0 0 360 210",
+                    class: "w-full max-w-xs mx-auto select-none",
+                    view_box: "0 0 240 386",
                     role: "img",
                     "aria-label": "Interactive beef cuts diagram",
-
-                    // tail (behind the body)
-                    path {
-                        d: "M300 62 q24 6 20 42 q-2 12 -11 15",
-                        fill: "none",
-                        stroke: "#a98a6f",
-                        stroke_width: "3",
-                        stroke_linecap: "round",
-                    }
-                    circle { cx: "309", cy: "121", r: "4", fill: "#4a1505" }
-
-                    // far legs (decorative, behind the body) — same shape as the near legs
-                    polygon { points: "129,124 147,124 146,156 144,188 132,188 130,156", fill: "#bfa389" }
-                    polygon { points: "267,130 285,130 284,156 282,188 270,188 268,156", fill: "#bfa389" }
-
-                    // cut regions (clickable); shanks last so they sit on top of the body
                     for (i , c) in CUTS.iter().enumerate() {
                         g {
                             key: "cut{i}",
@@ -159,31 +179,21 @@ pub fn CutDiagram() -> Element {
                                 points: "{c.points}",
                                 fill: cut_fill(c.good, i == sel),
                                 stroke: if i == sel { "#2f1a0a" } else { "#ffffff" },
-                                stroke_width: if i == sel { "2.5" } else { "1" },
+                                stroke_width: if i == sel { "2.5" } else { "1.2" },
                             }
                             text {
                                 x: "{c.lx}",
                                 y: "{c.ly}",
                                 text_anchor: "middle",
-                                font_size: "7.5",
+                                font_size: "7",
                                 font_weight: "bold",
                                 fill: "#2a1a0a",
                                 pointer_events: "none",
+                                transform: "rotate({c.rot} {c.lx} {c.ly})",
                                 "{c.label}"
                             }
                         }
                     }
-
-                    // hooves (decorative)
-                    rect { x: "110", y: "189", width: "17", height: "6", rx: "1", fill: "#4a1505" }
-                    rect { x: "288", y: "189", width: "18", height: "6", rx: "1", fill: "#4a1505" }
-
-                    // head & neck (decorative, on top)
-                    polygon { points: "95,74 74,66 52,72 40,88 44,104 64,112 95,118",
-                        fill: "#c9ad93", stroke: "#a98a6f", stroke_width: "1" }
-                    polygon { points: "60,66 68,50 75,66", fill: "#c9ad93", stroke: "#a98a6f", stroke_width: "1" }
-                    ellipse { cx: "42", cy: "94", rx: "4", ry: "6", fill: "#b08d72" }
-                    circle { cx: "56", cy: "82", r: "2.5", fill: "#2a1a0a" }
                 }
 
                 // --- info panel ---
