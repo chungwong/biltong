@@ -55,7 +55,7 @@ pub fn Calculator() -> Element {
                             }
                         }
                         // Unit toggle
-                        div { class: "inline-flex rounded-lg ring-1 ring-biltong-300 overflow-hidden",
+                        div { class: "flex w-full sm:inline-flex sm:w-auto rounded-lg ring-1 ring-biltong-300 overflow-hidden",
                             UnitButton {
                                 label: "Metric",
                                 active: sys == UnitSystem::Metric,
@@ -123,7 +123,7 @@ fn UnitButton(label: &'static str, active: bool, onclick: EventHandler<MouseEven
     rsx! {
         button {
             r#type: "button",
-            class: "px-4 py-2 text-sm font-semibold transition-colors {classes}",
+            class: "flex-1 sm:flex-none px-4 py-2 text-sm font-semibold transition-colors {classes}",
             onclick: move |evt| onclick.call(evt),
             "{label}"
         }
