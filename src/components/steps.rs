@@ -70,12 +70,12 @@ fn StepAnchor() -> Element {
                                 },
                                 "{i + 1}. {step.title}"
                             }
-                            // dot — always visible
+                            // dot — always visible; same size so the rail stays aligned
                             span {
                                 class: if active() == i {
-                                    "block w-3 h-3 rounded-full bg-biltong-700 ring-2 ring-biltong-300 transition-all"
+                                    "block w-2.5 h-2.5 rounded-full bg-biltong-700 transition-colors"
                                 } else {
-                                    "block w-2 h-2 rounded-full bg-biltong-300 group-hover:bg-biltong-500 transition-all"
+                                    "block w-2.5 h-2.5 rounded-full bg-biltong-200 group-hover:bg-biltong-400 transition-colors"
                                 },
                             }
                         }
