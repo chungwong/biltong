@@ -30,55 +30,28 @@
       })();
     </script>
     <style>
-      /* Hide everything until the Tailwind utility layer is live, to avoid a flash of
-         unstyled (blue-link) content. Gating <body> (not just #main) makes this work
-         regardless of where the WASM app mounts. */
-      body {
-        visibility: hidden;
-      }
-      html.app-ready body {
-        visibility: visible;
-      }
-      /* Paint the themed page background on <html> so it shows even while body is hidden
-         (no light flash in dark mode). */
+      /* FOUC guard. Hide <body> by default; the Tailwind stylesheet (injected at runtime by
+         Dioxus) ends with `body { visibility: visible }`, so the page reveals exactly when
+         the styles apply — a stylesheet applies atomically, so there's no race and no flash.
+         The themed page background sits on <html> so it paints while the body is hidden. */
       html {
         background-color: #fdf6f0;
       }
       html.dark {
         background-color: #1c1917;
       }
+      body {
+        visibility: hidden;
+      }
     </style>
     <script>
-      // Reveal the app only once a Tailwind *utility* has actually applied (not just a
-      // theme variable, which resolves earlier in the stylesheet). We probe an off-screen
-      // element carrying `bg-biltong-900` and wait for its computed colour to match.
-      (function () {
-        function styled() {
-          var p = document.getElementById("fouc-probe");
-          if (!p) return false;
-          // The probe carries bg-biltong-900; until the utility applies its background is
-          // transparent. Any opaque background means the utility layer is in effect.
-          var c = getComputedStyle(p).backgroundColor;
-          return c && c !== "rgba(0, 0, 0, 0)" && c !== "transparent";
-        }
-        var tries = 0;
-        (function check() {
-          if (styled() || tries++ > 600) {
-            document.documentElement.classList.add("app-ready");
-          } else {
-            requestAnimationFrame(check);
-          }
-        })();
-      })();
+      // Safety net: never keep the page hidden if the stylesheet somehow fails to load.
+      setTimeout(function () {
+        if (document.body) document.body.style.visibility = "visible";
+      }, 8000);
     </script>
   </head>
   <body>
-    <div
-      id="fouc-probe"
-      class="bg-biltong-900"
-      aria-hidden="true"
-      style="position: fixed; top: 0; left: 0; width: 0; height: 0; overflow: hidden"
-    ></div>
     <div id="main"></div>
     <script>
       // Scroll restoration for the WASM SPA. The browser's automatic restore runs before
