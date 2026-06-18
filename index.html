@@ -113,12 +113,16 @@
         }
 
         function restore() {
-          var saved = parseInt(sessionStorage.getItem(KEY) || "0", 10) || 0;
+          var savedRaw = sessionStorage.getItem(KEY);
+          var hasSaved = savedRaw !== null;
+          var saved = parseInt(savedRaw || "0", 10) || 0;
           var tries = 0;
           (function tick() {
-            var hy = hashTarget();
-            var target = hy != null ? hy : saved;
-            if (target <= 0) return;
+            // Prefer this tab's remembered scroll position; only fall back to a #hash
+            // target on a fresh visit (no saved position yet). Otherwise a leftover #cuts
+            // in the URL would yank a refreshed page back to that section every time.
+            var target = hasSaved ? saved : hashTarget();
+            if (target == null || target <= 0) return;
             var ready =
               document.documentElement.scrollHeight >=
               target + window.innerHeight - 1;
