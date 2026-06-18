@@ -11,11 +11,21 @@ pub fn Calculator() -> Element {
     // Keep the raw text locally so the field shows exactly what was typed.
     let mut raw = use_signal(|| "1".to_string());
 
-    // Restore the unit choice persisted from a previous visit (default stays metric).
+    // Restore the unit and amount persisted from a previous visit (defaults: metric, "1").
+    // Reading happens once on load, before any user action writes, so there's no clobber.
     use_future(move || async move {
-        let mut eval = document::eval("dioxus.send(localStorage.getItem('biltong:unit') || '')");
-        if let Ok(stored) = eval.recv::<String>().await {
-            if stored == "imperial" {
+        let mut eval = document::eval(
+            "dioxus.send([localStorage.getItem('biltong:unit') || '', \
+             localStorage.getItem('biltong:amount') || ''])",
+        );
+        if let Ok(vals) = eval.recv::<Vec<String>>().await {
+            let unit = vals.first().cloned().unwrap_or_default();
+            let amount = vals.get(1).cloned().unwrap_or_default();
+            if !amount.is_empty() {
+                raw.set(amount.clone());
+                input.write().meat_grams = meat_to_grams(parse_amount(&amount), input().system);
+            }
+            if unit == "imperial" {
                 set_system(input, &raw(), UnitSystem::Imperial);
             }
         }
@@ -80,6 +90,7 @@ pub fn Calculator() -> Element {
                                         raw.set(evt.value());
                                         let grams = meat_to_grams(parse_amount(&evt.value()), input().system);
                                         input.write().meat_grams = grams;
+                                        persist_amount(&evt.value());
                                     },
                                 }
                                 span { class: "inline-flex items-center px-3 bg-biltong-50 dark:bg-stone-700 \
@@ -171,15 +182,26 @@ fn step_amount(mut input: Signal<CalcInput>, mut raw: Signal<String>, dir: f64) 
     } else {
         format!("{next:.1}")
     };
-    raw.set(text);
+    raw.set(text.clone());
     input.write().meat_grams = meat_to_grams(next, sys);
+    persist_amount(&text);
 }
 
 /// Set the meat amount directly (used by the preset chips).
 fn set_amount(mut input: Signal<CalcInput>, mut raw: Signal<String>, value: f64) {
     let sys = input().system;
-    raw.set(format!("{value}"));
+    let text = format!("{value}");
+    raw.set(text.clone());
     input.write().meat_grams = meat_to_grams(value, sys);
+    persist_amount(&text);
+}
+
+/// Remember the meat amount for next time (escaped so it can't break the JS string).
+fn persist_amount(value: &str) {
+    let safe = value.replace('\\', "\\\\").replace('\'', "\\'");
+    document::eval(&format!(
+        "try {{ localStorage.setItem('biltong:amount', '{safe}'); }} catch (e) {{}}"
+    ));
 }
 
 /// Switch unit system, re-deriving the stored grams from the current raw input, and
