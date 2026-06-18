@@ -46,25 +46,16 @@ fn ArtFrame(children: Element) -> Element {
     }
 }
 
-/// A single biltong strip seen side-on: dark dried rim, deep-red marbled interior and a few
-/// fat flecks — the same palette as the slices (step 8), so meat reads consistently across
-/// steps. `(cx, cy)` is the centre; `hl`/`ht` are the half-length and half-thickness.
+/// A single biltong strip seen side-on, in the same dark, sheened look as the hanging
+/// strips in step 7 — so the whole strips read consistently across steps 5–7. (The sliced
+/// cross-section look — red interior + fat flecks — is reserved for step 8.) `(cx, cy)` is
+/// the centre; `hl`/`ht` are the half-length and half-thickness.
 #[component]
 fn MeatStrip(cx: f64, cy: f64, hl: f64, ht: f64) -> Element {
     rsx! {
-        rect { x: "{cx - hl}", y: "{cy - ht}", width: "{2.0 * hl}", height: "{2.0 * ht}", rx: "{ht}", fill: "#3d1709" }
-        rect {
-            x: "{cx - hl + 1.6}",
-            y: "{cy - ht + 1.6}",
-            width: "{2.0 * hl - 3.2}",
-            height: "{2.0 * ht - 3.2}",
-            rx: "{ht - 1.6}",
-            fill: "#7e2a1d",
-        }
-        ellipse { cx: "{cx}", cy: "{cy - ht * 0.35}", rx: "{hl * 0.72}", ry: "{ht * 0.3}", fill: "#9a3b2a", opacity: "0.6" }
-        ellipse { cx: "{cx - hl * 0.5}", cy: "{cy + 1.0}", rx: "1.6", ry: "1.1", fill: "#e9d6b4", opacity: "0.85" }
-        ellipse { cx: "{cx + hl * 0.1}", cy: "{cy - 2.0}", rx: "1.4", ry: "1", fill: "#e9d6b4", opacity: "0.85" }
-        ellipse { cx: "{cx + hl * 0.5}", cy: "{cy + 2.0}", rx: "1.4", ry: "1", fill: "#e9d6b4", opacity: "0.85" }
+        rect { x: "{cx - hl}", y: "{cy - ht}", width: "{2.0 * hl}", height: "{2.0 * ht}", rx: "{ht}", fill: "#54200f" }
+        ellipse { cx: "{cx}", cy: "{cy - ht * 0.3}", rx: "{hl * 0.82}", ry: "{ht * 0.42}", fill: "#6e2c18", opacity: "0.85" }
+        ellipse { cx: "{cx - hl * 0.15}", cy: "{cy + ht * 0.15}", rx: "{hl * 0.5}", ry: "{ht * 0.25}", fill: "#8a3a26", opacity: "0.55" }
     }
 }
 
