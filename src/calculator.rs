@@ -114,9 +114,7 @@ fn line_for(
             let grams = meat_grams * frac;
             // Weight ingredients show their live ratio: salt as the headline note, the
             // spices appended to their description, both tracking any override.
-            let note = if ing.percent {
-                format!("~{}% of meat weight", round1(frac * 100.0))
-            } else if ing.note.is_empty() {
+            let note = if ing.percent || ing.note.is_empty() {
                 format!("~{}% of meat weight", round1(frac * 100.0))
             } else {
                 format!("{} (~{}%)", ing.note, round1(frac * 100.0))
