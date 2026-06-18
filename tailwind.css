@@ -159,12 +159,17 @@ html {
 
 @keyframes biltong-fan-in {
   0% {
-    transform: translateY(8px) scale(0.96);
+    transform: translateY(8px) scale(0.94);
     opacity: 0;
   }
-  100% {
+  20%,
+  80% {
     transform: translateY(0) scale(1);
     opacity: 1;
+  }
+  100% {
+    transform: translateY(8px) scale(0.94);
+    opacity: 0;
   }
 }
 
@@ -208,7 +213,7 @@ html {
   animation: biltong-airflow 2.2s ease-out infinite;
 }
 .anim-fan-in {
-  animation: biltong-fan-in 0.8s ease-out both;
+  animation: biltong-fan-in 4s ease-in-out infinite;
 }
 .anim-shine {
   animation: biltong-shine 3s ease-in-out infinite;
