@@ -112,11 +112,14 @@ fn line_for(
         Measure::WeightFraction(fraction) => {
             let frac = override_factor.unwrap_or(fraction);
             let grams = meat_grams * frac;
-            // Salt (and any `percent` ingredient) shows its live ratio, not a fixed string.
+            // Weight ingredients show their live ratio: salt as the headline note, the
+            // spices appended to their description, both tracking any override.
             let note = if ing.percent {
                 format!("~{}% of meat weight", round1(frac * 100.0))
+            } else if ing.note.is_empty() {
+                format!("~{}% of meat weight", round1(frac * 100.0))
             } else {
-                ing.note.to_string()
+                format!("{} (~{}%)", ing.note, round1(frac * 100.0))
             };
             match system {
                 UnitSystem::Metric => (grams, "g", false, note),
