@@ -70,13 +70,17 @@ fn StepAnchor() -> Element {
                                 },
                                 "{i + 1}. {step.title}"
                             }
-                            // dot — always visible; same size so the rail stays aligned
+                            // numbered dot — always visible; same size so the rail stays aligned
                             span {
                                 class: if active() == i {
-                                    "block w-2.5 h-2.5 rounded-full bg-biltong-700 transition-colors"
+                                    "flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold \
+                                     transition-colors bg-biltong-700 text-biltong-50"
                                 } else {
-                                    "block w-2.5 h-2.5 rounded-full bg-biltong-200 group-hover:bg-biltong-400 transition-colors"
+                                    "flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold \
+                                     transition-colors bg-biltong-100 text-biltong-700 border border-biltong-300 \
+                                     group-hover:bg-biltong-300"
                                 },
+                                "{i + 1}"
                             }
                         }
                     }
