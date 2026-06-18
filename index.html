@@ -30,19 +30,21 @@
       })();
     </script>
     <style>
-      /* Avoid a flash of unstyled content: keep the app hidden until the Tailwind
-         stylesheet (injected by Dioxus after the WASM app boots) has actually applied. */
-      #main {
+      /* Hide everything until the Tailwind utility layer is live, to avoid a flash of
+         unstyled (blue-link) content. Gating <body> (not just #main) makes this work
+         regardless of where the WASM app mounts. */
+      body {
         visibility: hidden;
       }
-      html.app-ready #main {
+      html.app-ready body {
         visibility: visible;
       }
-      /* Match the app's page background pre-boot so there's no light flash in dark mode. */
-      body {
+      /* Paint the themed page background on <html> so it shows even while body is hidden
+         (no light flash in dark mode). */
+      html {
         background-color: #fdf6f0;
       }
-      html.dark body {
+      html.dark {
         background-color: #1c1917;
       }
     </style>
