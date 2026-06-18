@@ -475,13 +475,21 @@ fn DryArt() -> Element {
             // hanging rail
             line { x1: "20", y1: "24", x2: "180", y2: "24", stroke: "currentColor", stroke_width: "4",
                 stroke_linecap: "round" }
-            // swaying strips (animated, staggered)
-            for (i , x) in [70.0_f64, 100.0, 130.0].into_iter().enumerate() {
+            // swaying biltong strips on hooks (irregular, dried; animated, staggered)
+            for (i , x) in [66.0_f64, 100.0, 134.0].into_iter().enumerate() {
                 g { key: "{i}", class: "anim-sway",
                     style: "transform-origin: {x}px 24px; animation-delay: {i as f64 * 0.4}s",
-                    line { x1: "{x}", y1: "24", x2: "{x}", y2: "40", stroke: "#9ca3af", stroke_width: "2" }
-                    rect { x: "{x - 9.0}", y: "40", width: "18", height: "58", rx: "9", fill: "#7c2d12" }
-                    ellipse { cx: "{x}", cy: "54", rx: "5", ry: "3", fill: "#a85a32", opacity: "0.6" }
+                    // S-hook
+                    path { d: "M{x} 24 q-5 3 -2 8 q2 3 0 6", fill: "none", stroke: "#b9bcc2", stroke_width: "2" }
+                    // dried strip body, knobbly and tapered
+                    path {
+                        d: "M{x - 8.0} 40 C{x - 10.0} 54 {x - 9.0} 70 {x - 6.0} 84 C{x - 4.0} 92 {x - 2.0} 97 {x} 98 C{x + 2.0} 97 {x + 4.0} 92 {x + 6.0} 84 C{x + 9.0} 70 {x + 10.0} 54 {x + 8.0} 40 C{x + 4.0} 35 {x - 4.0} 35 {x - 8.0} 40 Z",
+                        fill: "#54200f",
+                    }
+                    path { d: "M{x - 2.0} 44 C{x - 4.0} 58 {x - 3.0} 74 {x - 1.0} 86", fill: "none",
+                        stroke: "#6e2c18", stroke_width: "3", stroke_linecap: "round", opacity: "0.85" }
+                    path { d: "M{x + 3.0} 50 C{x + 4.0} 62 {x + 4.0} 74 {x + 2.0} 84", fill: "none",
+                        stroke: "#8a3a26", stroke_width: "1.6", stroke_linecap: "round", opacity: "0.6" }
                 }
             }
             // fan airflow lines (animated, staggered)
@@ -507,32 +515,22 @@ fn DryArt() -> Element {
 fn DoneArt() -> Element {
     rsx! {
         ArtFrame {
-            // serving board
-            ellipse { cx: "100", cy: "106", rx: "80", ry: "15", fill: "#caa079" }
-            ellipse { cx: "100", cy: "103", rx: "80", ry: "15", fill: "#d8a47f" }
-            // whole biltong sticks at the back
-            for (i , (x , rot , col)) in [
-                (70.0_f64, -8.0_f64, "#6b2410"),
-                (100.0, -2.0, "#7c2d12"),
-                (128.0, 6.0, "#6b2410"),
-            ]
-                .into_iter()
-                .enumerate()
-            {
-                g { key: "stick{i}", transform: "rotate({rot} {x} 70)",
-                    rect { x: "{x - 9.0}", y: "44", width: "18", height: "50", rx: "9", fill: "{col}" }
-                    ellipse { cx: "{x}", cy: "60", rx: "5", ry: "9", fill: "#a85a32", opacity: "0.5" }
-                }
-            }
-            // sliced biltong fanned in front (animated in, staggered), each showing rim + interior
-            for (i , x) in [58.0_f64, 76.0, 94.0, 112.0, 130.0, 148.0].into_iter().enumerate() {
-                g { key: "slice{i}", class: "anim-fan-in", style: "animation-delay: {i as f64 * 0.12}s",
-                    ellipse { cx: "{x}", cy: "92", rx: "15", ry: "12", fill: "#4a1505",
-                        transform: "rotate({(i as f64 - 2.5) * 7.0} {x} 92)" }
-                    ellipse { cx: "{x}", cy: "92", rx: "10.5", ry: "8", fill: "#9b3a2a",
-                        transform: "rotate({(i as f64 - 2.5) * 7.0} {x} 92)" }
-                    ellipse { cx: "{x - 3.0}", cy: "89", rx: "2.5", ry: "1.6", fill: "#e8c9a0",
-                        opacity: "0.8", transform: "rotate({(i as f64 - 2.5) * 7.0} {x} 92)" }
+            // wooden serving board
+            ellipse { cx: "100", cy: "116", rx: "86", ry: "15", fill: "#b07f4f" }
+            ellipse { cx: "100", cy: "112", rx: "86", ry: "15", fill: "#caa074" }
+            // a fan of biltong slices: dark dried rim, deep-red marbled interior with fat
+            // flecks, pivoting from below so they spread out; staggered fan-in
+            for i in 0..7usize {
+                g { key: "slice{i}", class: "anim-fan-in",
+                    style: "animation-delay: {i as f64 * 0.1}s",
+                    g { transform: "rotate({(i as f64 - 3.0) * 17.0} 100 128)",
+                        ellipse { cx: "100", cy: "90", rx: "12", ry: "19", fill: "#3d1709" }
+                        ellipse { cx: "100", cy: "90", rx: "9.6", ry: "16.6", fill: "#7e2a1d" }
+                        ellipse { cx: "100", cy: "88", rx: "7", ry: "12", fill: "#9a3b2a", opacity: "0.7" }
+                        ellipse { cx: "98", cy: "83", rx: "1.6", ry: "1.1", fill: "#e9d6b4", opacity: "0.85" }
+                        ellipse { cx: "103", cy: "89", rx: "1.5", ry: "1", fill: "#e9d6b4", opacity: "0.85" }
+                        ellipse { cx: "98", cy: "96", rx: "1.4", ry: "1", fill: "#e9d6b4", opacity: "0.85" }
+                    }
                 }
             }
         }
