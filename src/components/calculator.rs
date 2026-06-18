@@ -13,9 +13,10 @@ pub fn Calculator() -> Element {
     let mut input = use_context::<Signal<CalcInput>>();
     // Keep the raw text locally so the field shows exactly what was typed.
     let mut raw = use_signal(|| "1".to_string());
-    // Per-ingredient amount overrides (as scaling factors), and the live text of whichever
-    // ingredient field is being edited (so the field doesn't fight the recomputed value).
-    let mut overrides = use_signal(Overrides::new);
+    // Per-ingredient amount overrides (as scaling factors), shared via context so the step
+    // animations show the same amounts; plus the live text of whichever ingredient field is
+    // being edited (so the field doesn't fight the recomputed value).
+    let mut overrides = use_context::<Signal<Overrides>>();
     let mut edits = use_signal(HashMap::<String, String>::new);
 
     // Restore the unit, amount and ingredient overrides persisted from a previous visit.

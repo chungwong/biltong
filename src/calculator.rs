@@ -189,22 +189,25 @@ pub fn format_meat(meat_grams: f64, system: UnitSystem) -> String {
     }
 }
 
-/// The formatted amount of a single ingredient by name (empty string if not found). Used by
-/// the step animations, which show the recipe defaults (no overrides).
-pub fn amount_of(name: &str, meat_grams: f64, system: UnitSystem) -> String {
+/// The formatted amount of a single ingredient by name (empty string if not found),
+/// honouring any user override. Used by the step animations so they match the calculator.
+pub fn amount_of(name: &str, meat_grams: f64, system: UnitSystem, overrides: &Overrides) -> String {
     INGREDIENTS
         .iter()
         .find(|ing| ing.name == name)
-        .map(|ing| line_for(ing, meat_grams, system, None).amount())
+        .map(|ing| line_for(ing, meat_grams, system, overrides.get(name).copied()).amount())
         .unwrap_or_default()
 }
 
-/// The combined spice blend (every weight ingredient except salt: coriander, pepper, chili).
-pub fn spice_blend_amount(meat_grams: f64, system: UnitSystem) -> String {
+/// The combined spice blend (every weight ingredient except salt: coriander, pepper, chili),
+/// honouring any user overrides.
+pub fn spice_blend_amount(meat_grams: f64, system: UnitSystem, overrides: &Overrides) -> String {
     let grams: f64 = INGREDIENTS
         .iter()
         .filter_map(|ing| match ing.measure {
-            Measure::WeightFraction(fraction) if ing.name != "Salt" => Some(meat_grams * fraction),
+            Measure::WeightFraction(fraction) if ing.name != "Salt" => {
+                Some(meat_grams * overrides.get(ing.name).copied().unwrap_or(fraction))
+            }
             _ => None,
         })
         .sum();

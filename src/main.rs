@@ -17,8 +17,10 @@ fn main() {
 
 #[component]
 fn App() -> Element {
-    // Shared calculator input, read by both the calculator and the step animations.
+    // Shared calculator input and ingredient overrides, read by both the calculator and
+    // the step animations so they show the same (possibly customised) amounts.
     use_context_provider(|| Signal::new(calculator::CalcInput::default()));
+    use_context_provider(|| Signal::new(calculator::Overrides::new()));
 
     rsx! {
         document::Link { rel: "icon", r#type: "image/svg+xml", href: FAVICON }

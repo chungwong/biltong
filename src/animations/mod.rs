@@ -3,7 +3,7 @@
 //! the right one based on the step's [`AnimKind`].
 
 use crate::calculator::{
-    amount_of, drying_temp, format_meat, slice_thickness, spice_blend_amount, CalcInput,
+    amount_of, drying_temp, format_meat, slice_thickness, spice_blend_amount, CalcInput, Overrides,
 };
 use crate::recipe::AnimKind;
 use dioxus::prelude::*;
@@ -11,6 +11,11 @@ use dioxus::prelude::*;
 /// Read the shared calculator input so an animation can show live amounts.
 fn calc_input() -> CalcInput {
     use_context::<Signal<CalcInput>>()()
+}
+
+/// Read the shared ingredient overrides so animation amounts match the calculator.
+fn calc_overrides() -> Overrides {
+    use_context::<Signal<Overrides>>()()
 }
 
 /// Render the animation that illustrates a given step.
@@ -155,8 +160,9 @@ fn SliceArt() -> Element {
 #[component]
 fn VinegarArt() -> Element {
     let input = calc_input();
-    let vinegar = amount_of("Red wine vinegar", input.meat_grams, input.system);
-    let worcester = amount_of("Worcestershire sauce", input.meat_grams, input.system);
+    let ov = calc_overrides();
+    let vinegar = amount_of("Red wine vinegar", input.meat_grams, input.system, &ov);
+    let worcester = amount_of("Worcestershire sauce", input.meat_grams, input.system, &ov);
     rsx! {
         ArtFrame {
             // --- tray of sliced beef, top-down ---
@@ -224,7 +230,13 @@ fn VinegarArt() -> Element {
 #[component]
 fn ToastArt() -> Element {
     let input = calc_input();
-    let coriander = amount_of("Coriander seed (toasted)", input.meat_grams, input.system);
+    let ov = calc_overrides();
+    let coriander = amount_of(
+        "Coriander seed (toasted)",
+        input.meat_grams,
+        input.system,
+        &ov,
+    );
     rsx! {
         ArtFrame {
             // live coriander amount
@@ -297,9 +309,15 @@ fn ToastArt() -> Element {
 #[component]
 fn GrindArt() -> Element {
     let input = calc_input();
-    let coriander = amount_of("Coriander seed (toasted)", input.meat_grams, input.system);
-    let pepper = amount_of("Peppercorns", input.meat_grams, input.system);
-    let chili = amount_of("Chili flakes", input.meat_grams, input.system);
+    let ov = calc_overrides();
+    let coriander = amount_of(
+        "Coriander seed (toasted)",
+        input.meat_grams,
+        input.system,
+        &ov,
+    );
+    let pepper = amount_of("Peppercorns", input.meat_grams, input.system, &ov);
+    let chili = amount_of("Chili flakes", input.meat_grams, input.system, &ov);
     rsx! {
         ArtFrame {
             // live spice amounts going into the blend
@@ -334,8 +352,9 @@ fn GrindArt() -> Element {
 #[component]
 fn SpiceArt() -> Element {
     let input = calc_input();
-    let salt = amount_of("Salt", input.meat_grams, input.system);
-    let blend = spice_blend_amount(input.meat_grams, input.system);
+    let ov = calc_overrides();
+    let salt = amount_of("Salt", input.meat_grams, input.system, &ov);
+    let blend = spice_blend_amount(input.meat_grams, input.system, &ov);
     rsx! {
         ArtFrame {
             // three biltong strips being salted & spiced
