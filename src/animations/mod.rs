@@ -450,12 +450,13 @@ fn CureArt() -> Element {
                 circle { key: "fleck{i}", cx: "{x}", cy: "{y}", r: "1.5", fill: "#b45309" }
             }
             // slices entering from outside through the opening and stacking up: the first,
-            // then three more — each descends from above the mouth onto the pile
+            // then three more — each descends from above the mouth onto the pile, then they
+            // all clear together and the cycle restarts (per-slice keyframe, no delay)
             for (i , cy) in [110.0_f64, 99.0, 88.0, 77.0].into_iter().enumerate() {
                 g {
                     key: "stack{i}",
-                    class: "anim-stack",
-                    style: "--from: {24.0 - cy}px; animation-delay: {i as f64 * 0.6}s",
+                    class: "anim-stack{i + 1}",
+                    style: "--from: {24.0 - cy}px",
                     MeatStrip { cx: 83.0, cy, hl: 27.0, ht: 4.5 }
                 }
             }

@@ -173,22 +173,84 @@ html {
   }
 }
 
-@keyframes biltong-stack {
+/* Four slices drop in from above the bag mouth one after another (staggered entrance baked
+   into each keyframe via --from), all hold, then all fade out together at 86–98% so the
+   stack clears in one go and the cycle restarts. No per-slice animation-delay (that would
+   stagger the exit too). */
+@keyframes biltong-stack1 {
   0% {
     transform: translateY(var(--from, -40px));
     opacity: 0;
   }
-  6% {
+  3% {
     opacity: 1;
   }
-  35% {
+  12%,
+  86% {
     transform: translateY(0);
     opacity: 1;
   }
-  90% {
+  98%,
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+}
+@keyframes biltong-stack2 {
+  0%,
+  14% {
+    transform: translateY(var(--from, -40px));
+    opacity: 0;
+  }
+  17% {
+    opacity: 1;
+  }
+  26%,
+  86% {
     transform: translateY(0);
     opacity: 1;
   }
+  98%,
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+}
+@keyframes biltong-stack3 {
+  0%,
+  28% {
+    transform: translateY(var(--from, -40px));
+    opacity: 0;
+  }
+  31% {
+    opacity: 1;
+  }
+  40%,
+  86% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  98%,
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+}
+@keyframes biltong-stack4 {
+  0%,
+  42% {
+    transform: translateY(var(--from, -40px));
+    opacity: 0;
+  }
+  45% {
+    opacity: 1;
+  }
+  54%,
+  86% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  98%,
   100% {
     transform: translateY(0);
     opacity: 0;
@@ -237,8 +299,17 @@ html {
 .anim-fan-in {
   animation: biltong-fan-in 4s ease-in-out infinite;
 }
-.anim-stack {
-  animation: biltong-stack 4.5s ease-in infinite backwards;
+.anim-stack1 {
+  animation: biltong-stack1 5s ease-in infinite;
+}
+.anim-stack2 {
+  animation: biltong-stack2 5s ease-in infinite;
+}
+.anim-stack3 {
+  animation: biltong-stack3 5s ease-in infinite;
+}
+.anim-stack4 {
+  animation: biltong-stack4 5s ease-in infinite;
 }
 .anim-shine {
   animation: biltong-shine 3s ease-in-out infinite;
@@ -254,6 +325,10 @@ html {
   .anim-sway,
   .anim-airflow,
   .anim-fan-in,
+  .anim-stack1,
+  .anim-stack2,
+  .anim-stack3,
+  .anim-stack4,
   .anim-shine {
     animation: none !important;
   }
