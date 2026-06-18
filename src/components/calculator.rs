@@ -11,6 +11,16 @@ pub fn Calculator() -> Element {
     // Keep the raw text locally so the field shows exactly what was typed.
     let mut raw = use_signal(|| "1".to_string());
 
+    // Restore the unit choice persisted from a previous visit (default stays metric).
+    use_future(move || async move {
+        let mut eval = document::eval("dioxus.send(localStorage.getItem('biltong:unit') || '')");
+        if let Ok(stored) = eval.recv::<String>().await {
+            if stored == "imperial" {
+                set_system(input, &raw(), UnitSystem::Imperial);
+            }
+        }
+    });
+
     let sys = input().system;
     let amount = parse_amount(&raw());
     let lines = compute(input().meat_grams, sys);
@@ -172,11 +182,21 @@ fn set_amount(mut input: Signal<CalcInput>, mut raw: Signal<String>, value: f64)
     input.write().meat_grams = meat_to_grams(value, sys);
 }
 
-/// Switch unit system, re-deriving the stored grams from the current raw input.
+/// Switch unit system, re-deriving the stored grams from the current raw input, and
+/// remember the choice for next time.
 fn set_system(mut input: Signal<CalcInput>, raw: &str, system: UnitSystem) {
-    let mut st = input.write();
-    st.system = system;
-    st.meat_grams = meat_to_grams(parse_amount(raw), system);
+    {
+        let mut st = input.write();
+        st.system = system;
+        st.meat_grams = meat_to_grams(parse_amount(raw), system);
+    }
+    let value = match system {
+        UnitSystem::Metric => "metric",
+        UnitSystem::Imperial => "imperial",
+    };
+    document::eval(&format!(
+        "try {{ localStorage.setItem('biltong:unit', '{value}'); }} catch (e) {{}}"
+    ));
 }
 
 #[component]
