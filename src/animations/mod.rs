@@ -41,6 +41,28 @@ fn ArtFrame(children: Element) -> Element {
     }
 }
 
+/// A single biltong strip seen side-on: dark dried rim, deep-red marbled interior and a few
+/// fat flecks — the same palette as the slices (step 8), so meat reads consistently across
+/// steps. `(cx, cy)` is the centre; `hl`/`ht` are the half-length and half-thickness.
+#[component]
+fn MeatStrip(cx: f64, cy: f64, hl: f64, ht: f64) -> Element {
+    rsx! {
+        rect { x: "{cx - hl}", y: "{cy - ht}", width: "{2.0 * hl}", height: "{2.0 * ht}", rx: "{ht}", fill: "#3d1709" }
+        rect {
+            x: "{cx - hl + 1.6}",
+            y: "{cy - ht + 1.6}",
+            width: "{2.0 * hl - 3.2}",
+            height: "{2.0 * ht - 3.2}",
+            rx: "{ht - 1.6}",
+            fill: "#7e2a1d",
+        }
+        ellipse { cx: "{cx}", cy: "{cy - ht * 0.35}", rx: "{hl * 0.72}", ry: "{ht * 0.3}", fill: "#9a3b2a", opacity: "0.6" }
+        ellipse { cx: "{cx - hl * 0.5}", cy: "{cy + 1.0}", rx: "1.6", ry: "1.1", fill: "#e9d6b4", opacity: "0.85" }
+        ellipse { cx: "{cx + hl * 0.1}", cy: "{cy - 2.0}", rx: "1.4", ry: "1", fill: "#e9d6b4", opacity: "0.85" }
+        ellipse { cx: "{cx + hl * 0.5}", cy: "{cy + 2.0}", rx: "1.4", ry: "1", fill: "#e9d6b4", opacity: "0.85" }
+    }
+}
+
 /// Step 1 — slicing the beef. The illustration emphasises the two things the text calls
 /// out: cut WITH the grain (knife travels along the grain striations, parallel to the
 /// cut lines) and keep each strip ~2 cm thick (a pulsing dimension marker).
@@ -311,10 +333,10 @@ fn SpiceArt() -> Element {
     let blend = spice_blend_amount(input.meat_grams, input.system);
     rsx! {
         ArtFrame {
-            // steak
-            rect { x: "32", y: "52", width: "136", height: "52", rx: "16", fill: "#7c2d12" }
-            line { x1: "44", y1: "70", x2: "156", y2: "70", stroke: "#a85a32", stroke_width: "1.5", opacity: "0.4" }
-            line { x1: "44", y1: "86", x2: "156", y2: "86", stroke: "#a85a32", stroke_width: "1.5", opacity: "0.4" }
+            // three biltong strips being salted & spiced
+            MeatStrip { cx: 100.0, cy: 60.0, hl: 60.0, ht: 8.0 }
+            MeatStrip { cx: 100.0, cy: 80.0, hl: 60.0, ht: 8.0 }
+            MeatStrip { cx: 100.0, cy: 100.0, hl: 60.0, ht: 8.0 }
 
             // salt grains (white) being worked in
             for (i , (x , y)) in [
@@ -394,12 +416,9 @@ fn CureArt() -> Element {
             line { x1: "48", y1: "51", x2: "118", y2: "51", stroke: "#7aa3c0", stroke_width: "1.5" }
             line { x1: "48", y1: "54", x2: "118", y2: "54", stroke: "#7aa3c0", stroke_width: "1.5" }
             rect { x: "112", y: "49", width: "8", height: "7", rx: "1.5", fill: "#7aa3c0" }
-            // spiced strips already in the bag
+            // spiced biltong strips already in the bag
             for y in [74.0_f64, 88.0, 102.0] {
-                g { key: "strip{y}",
-                    rect { x: "54", y: "{y}", width: "54", height: "9", rx: "4", fill: "#7c2d12" }
-                    ellipse { cx: "81", cy: "{y + 4.0}", rx: "20", ry: "2", fill: "#a85a32", opacity: "0.5" }
-                }
+                MeatStrip { key: "strip{y}", cx: 81.0, cy: y + 4.5, hl: 27.0, ht: 4.5 }
             }
             // spice flecks
             for (i , (x , y)) in [
@@ -414,10 +433,10 @@ fn CureArt() -> Element {
             {
                 circle { key: "fleck{i}", cx: "{x}", cy: "{y}", r: "1.5", fill: "#b45309" }
             }
-            // slices dropping into the bag (animated, staggered)
+            // strips dropping into the bag (animated, staggered)
             for (i , x) in [72.0_f64, 88.0].into_iter().enumerate() {
                 g { key: "drop{i}", class: "anim-drop", style: "animation-delay: {i as f64 * 1.0}s",
-                    rect { x: "{x - 20.0}", y: "28", width: "40", height: "9", rx: "4", fill: "#7c2d12" }
+                    MeatStrip { cx: x, cy: 32.0, hl: 20.0, ht: 4.5 }
                 }
             }
             // cure time — compact clock + caption on the right
