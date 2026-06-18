@@ -4,8 +4,8 @@
 use dioxus::prelude::*;
 
 /// Reports scroll direction so the nav can hide/reveal: sends `1` when the user scrolls
-/// down (hide) and `0` when scrolling up or at the very top (show), with a small threshold
-/// to avoid jitter.
+/// down (hide) and `0` when scrolling up or at the very top (show). Ignores tiny jitter and
+/// big jumps (scroll restore on refresh, anchor-link clicks) so those don't flash the nav.
 const HIDE_ON_SCROLL_JS: &str = r#"
     let last = window.scrollY;
     let state = 0;
@@ -15,6 +15,9 @@ const HIDE_ON_SCROLL_JS: &str = r#"
         if (y <= 0) { send(0); last = y; return; }
         const dy = y - last;
         if (Math.abs(dy) < 6) return;
+        // A big jump isn't a scroll gesture (restore-on-refresh, anchor jump): reposition
+        // without changing the nav state.
+        if (Math.abs(dy) > 200) { last = y; return; }
         send(dy > 0 ? 1 : 0);
         last = y;
     }, { passive: true });
