@@ -236,6 +236,11 @@ fn ToastArt() -> Element {
                 fill: "#4a1505",
                 "Coriander seed: {coriander}"
             }
+            // toasting time — small clock + label, top-right
+            circle { cx: "150", cy: "11", r: "6", fill: "none", stroke: "currentColor", stroke_width: "1.5" }
+            line { x1: "150", y1: "11", x2: "150", y2: "7", stroke: "currentColor", stroke_width: "1.5", stroke_linecap: "round" }
+            line { x1: "150", y1: "11", x2: "153.5", y2: "11", stroke: "currentColor", stroke_width: "1.5", stroke_linecap: "round" }
+            text { x: "160", y: "14", font_size: "9", font_weight: "bold", fill: "#4a1505", "3–5 min" }
             // flames under the pan (flickering)
             for (i , cx) in [74.0_f64, 90.0, 106.0].into_iter().enumerate() {
                 g { key: "f{i}", class: "anim-jiggle", style: "animation-delay: {i as f64 * 0.2}s",
