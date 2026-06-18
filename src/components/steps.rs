@@ -134,7 +134,7 @@ fn StepCard(index: usize, step: &'static Step) -> Element {
             "data-step": "{index}",
             class: "grid sm:grid-cols-2 gap-6 items-center bg-white dark:bg-stone-800 rounded-2xl \
                     shadow-sm ring-1 ring-biltong-100 dark:ring-stone-700 p-6 scroll-mt-20",
-            div { class: "bg-biltong-50 rounded-xl p-2 ring-1 ring-black/5 {media_order}",
+            div { class: "bg-biltong-50 dark:bg-stone-900 rounded-xl p-2 ring-1 ring-black/5 dark:ring-white/10 {media_order}",
                 StepArt { kind: step.anim }
             }
             div { class: "{text_order}",

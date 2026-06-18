@@ -29,6 +29,24 @@ body {
   visibility: visible;
 }
 
+/* Theme-adaptive "ink" for the SVG step illustrations: labels and contrast lines follow
+   the theme (dark on light, light on dark) via currentColor, while object colours (meat,
+   slice rims, etc.) keep their own fills. This lets the art read on a dark tile in dark
+   mode without hand-theming every shape. Only `.art-svg` (the step animations) is affected;
+   the cuts diagram keeps its dark labels on the coloured cut shapes. */
+:root {
+  --art-ink: #4a1505;
+}
+.dark {
+  --art-ink: #f0e6d8;
+}
+.art-svg {
+  color: var(--art-ink);
+}
+.art-svg text {
+  fill: var(--art-ink);
+}
+
 /* Offset anchor jumps so section headings clear the sticky nav bar (h-14 = 3.5rem). */
 html {
   scroll-padding-top: 4rem;

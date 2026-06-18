@@ -33,7 +33,7 @@ pub fn StepArt(kind: AnimKind) -> Element {
 fn ArtFrame(children: Element) -> Element {
     rsx! {
         svg {
-            class: "w-full h-40 sm:h-48",
+            class: "w-full h-40 sm:h-48 art-svg",
             view_box: "0 0 200 140",
             role: "img",
             {children}
@@ -104,9 +104,9 @@ fn SliceArt() -> Element {
 
             // thickness dimension on the top strip (y 38..56), gently pulsing for emphasis
             g { class: "anim-pulse",
-                line { x1: "150", y1: "38", x2: "162", y2: "38", stroke: "#4a1505", stroke_width: "1.5" }
-                line { x1: "150", y1: "56", x2: "162", y2: "56", stroke: "#4a1505", stroke_width: "1.5" }
-                line { x1: "156", y1: "38", x2: "156", y2: "56", stroke: "#4a1505", stroke_width: "1.5" }
+                line { x1: "150", y1: "38", x2: "162", y2: "38", stroke: "currentColor", stroke_width: "1.5" }
+                line { x1: "150", y1: "56", x2: "162", y2: "56", stroke: "currentColor", stroke_width: "1.5" }
+                line { x1: "156", y1: "38", x2: "156", y2: "56", stroke: "currentColor", stroke_width: "1.5" }
                 text {
                     x: "165",
                     y: "50",
@@ -473,7 +473,7 @@ fn DryArt() -> Element {
                 "50–60% humidity" }
 
             // hanging rail
-            line { x1: "20", y1: "24", x2: "180", y2: "24", stroke: "#4a1505", stroke_width: "4",
+            line { x1: "20", y1: "24", x2: "180", y2: "24", stroke: "currentColor", stroke_width: "4",
                 stroke_linecap: "round" }
             // swaying strips (animated, staggered)
             for (i , x) in [70.0_f64, 100.0, 130.0].into_iter().enumerate() {
@@ -492,8 +492,8 @@ fn DryArt() -> Element {
                     style: "animation-delay: {i as f64 * 0.3}s" }
             }
             // drying time: a little calendar + "~5 days"
-            line { x1: "80", y1: "110", x2: "80", y2: "116", stroke: "#4a1505", stroke_width: "1.5" }
-            line { x1: "86", y1: "110", x2: "86", y2: "116", stroke: "#4a1505", stroke_width: "1.5" }
+            line { x1: "80", y1: "110", x2: "80", y2: "116", stroke: "currentColor", stroke_width: "1.5" }
+            line { x1: "86", y1: "110", x2: "86", y2: "116", stroke: "currentColor", stroke_width: "1.5" }
             rect { x: "76", y: "114", width: "14", height: "12", rx: "2", fill: "#fdf6f0", stroke: "#4a1505", stroke_width: "1.5" }
             rect { x: "76", y: "114", width: "14", height: "4", rx: "2", fill: "#4a1505" }
             text { x: "94", y: "124", font_size: "9", font_weight: "bold", fill: "#4a1505", "~5 days" }
