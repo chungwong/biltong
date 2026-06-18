@@ -1,12 +1,42 @@
-//! Slim sticky navigation bar that stays pinned to the top while scrolling, with jump
-//! links to the page's three main sections.
+//! Slim navigation bar pinned to the top, with jump links to the page's main sections.
+//! It hides when you scroll down and slides back into view when you scroll up.
 
 use dioxus::prelude::*;
 
+/// Reports scroll direction so the nav can hide/reveal: sends `1` when the user scrolls
+/// down (hide) and `0` when scrolling up or at the very top (show), with a small threshold
+/// to avoid jitter.
+const HIDE_ON_SCROLL_JS: &str = r#"
+    let last = window.scrollY;
+    let state = 0;
+    const send = (s) => { if (s !== state) { state = s; dioxus.send(s); } };
+    window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        if (y <= 0) { send(0); last = y; return; }
+        const dy = y - last;
+        if (Math.abs(dy) < 6) return;
+        send(dy > 0 ? 1 : 0);
+        last = y;
+    }, { passive: true });
+"#;
+
 #[component]
 pub fn NavBar() -> Element {
+    let mut hidden = use_signal(|| false);
+    use_future(move || async move {
+        let mut eval = document::eval(HIDE_ON_SCROLL_JS);
+        while let Ok(s) = eval.recv::<i64>().await {
+            hidden.set(s != 0);
+        }
+    });
+
     rsx! {
-        nav { class: "sticky top-0 z-50 bg-biltong-900/95 backdrop-blur text-biltong-50 shadow-sm",
+        nav {
+            class: if hidden() {
+                "sticky top-0 z-50 bg-biltong-900/95 backdrop-blur text-biltong-50 shadow-sm transition-transform duration-300 -translate-y-full"
+            } else {
+                "sticky top-0 z-50 bg-biltong-900/95 backdrop-blur text-biltong-50 shadow-sm transition-transform duration-300 translate-y-0"
+            },
             div { class: "max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3",
                 a {
                     href: "#top",
