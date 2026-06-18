@@ -4,10 +4,16 @@
 //! [`crate::components::calculator`] and calls [`compute`].
 
 use crate::recipe::{Ingredient, Measure, INGREDIENTS};
+use std::collections::HashMap;
 
 const GRAMS_PER_OZ: f64 = 28.349_523_125;
 const GRAMS_PER_LB: f64 = 453.592_37;
 const ML_PER_FLOZ: f64 = 29.573_529_562_5;
+
+/// Per-ingredient override factors, keyed by ingredient name. The factor is in the
+/// ingredient's native units (a weight fraction, or millilitres per kg) so it rescales with
+/// the meat weight exactly like the recipe defaults.
+pub type Overrides = HashMap<String, f64>;
 
 /// The unit system the user is working in.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -46,13 +52,29 @@ impl Default for CalcInput {
     }
 }
 
-/// One computed row: an ingredient name, its scaled amount (already formatted in the
-/// chosen unit) and an optional note.
+/// One computed row: an ingredient name, the scaled amount as a number plus its unit, an
+/// optional note, whether it's a volume (vs weight) ingredient, and whether the amount has
+/// been overridden by the user.
 #[derive(Clone, PartialEq)]
 pub struct ResultLine {
     pub name: &'static str,
-    pub amount: String,
+    pub value: f64,
+    pub unit: &'static str,
     pub note: &'static str,
+    pub is_volume: bool,
+    pub overridden: bool,
+}
+
+impl ResultLine {
+    /// The amount formatted as "<value> <unit>", e.g. "22.5 g".
+    pub fn amount(&self) -> String {
+        format!("{} {}", round1(self.value), self.unit)
+    }
+
+    /// The numeric value rounded for display in an editable field.
+    pub fn value_str(&self) -> String {
+        round1(self.value)
+    }
 }
 
 /// Convert a meat-weight input (in the system's meat unit) into grams.
@@ -70,15 +92,8 @@ fn format_weight(grams: f64, system: UnitSystem) -> String {
     }
 }
 
-fn format_volume(ml: f64, system: UnitSystem) -> String {
-    match system {
-        UnitSystem::Metric => format!("{} ml", round1(ml)),
-        UnitSystem::Imperial => format!("{} fl oz", round1(ml / ML_PER_FLOZ)),
-    }
-}
-
 /// Round to one decimal place, dropping a trailing `.0`.
-fn round1(value: f64) -> String {
+pub fn round1(value: f64) -> String {
     let rounded = (value * 10.0).round() / 10.0;
     if (rounded.fract()).abs() < f64::EPSILON {
         format!("{}", rounded as i64)
@@ -87,24 +102,66 @@ fn round1(value: f64) -> String {
     }
 }
 
-fn line_for(ing: &Ingredient, meat_grams: f64, system: UnitSystem) -> ResultLine {
-    let amount = match ing.measure {
-        Measure::WeightFraction(fraction) => format_weight(meat_grams * fraction, system),
-        Measure::VolumePerKg(ml_per_kg) => format_volume(meat_grams / 1000.0 * ml_per_kg, system),
+fn line_for(
+    ing: &Ingredient,
+    meat_grams: f64,
+    system: UnitSystem,
+    override_factor: Option<f64>,
+) -> ResultLine {
+    let (value, unit, is_volume) = match ing.measure {
+        Measure::WeightFraction(fraction) => {
+            let grams = meat_grams * override_factor.unwrap_or(fraction);
+            match system {
+                UnitSystem::Metric => (grams, "g", false),
+                UnitSystem::Imperial => (grams / GRAMS_PER_OZ, "oz", false),
+            }
+        }
+        Measure::VolumePerKg(ml_per_kg) => {
+            let ml = meat_grams / 1000.0 * override_factor.unwrap_or(ml_per_kg);
+            match system {
+                UnitSystem::Metric => (ml, "ml", true),
+                UnitSystem::Imperial => (ml / ML_PER_FLOZ, "fl oz", true),
+            }
+        }
     };
     ResultLine {
         name: ing.name,
-        amount,
+        value,
+        unit,
         note: ing.note,
+        is_volume,
+        overridden: override_factor.is_some(),
     }
 }
 
-/// Scale every ingredient to `meat_grams` of meat, formatted for `system`.
-pub fn compute(meat_grams: f64, system: UnitSystem) -> Vec<ResultLine> {
+/// Scale every ingredient to `meat_grams` of meat, formatted for `system`, applying any
+/// per-ingredient `overrides`.
+pub fn compute(meat_grams: f64, system: UnitSystem, overrides: &Overrides) -> Vec<ResultLine> {
     INGREDIENTS
         .iter()
-        .map(|ing| line_for(ing, meat_grams, system))
+        .map(|ing| line_for(ing, meat_grams, system, overrides.get(ing.name).copied()))
         .collect()
+}
+
+/// Back-calculate an ingredient's override factor from an edited amount (entered in the
+/// current unit system), so the edit rescales with the meat weight like the recipe defaults.
+pub fn factor_from_amount(value: f64, meat_grams: f64, system: UnitSystem, is_volume: bool) -> f64 {
+    if meat_grams <= 0.0 {
+        return 0.0;
+    }
+    if is_volume {
+        let ml = match system {
+            UnitSystem::Metric => value,
+            UnitSystem::Imperial => value * ML_PER_FLOZ,
+        };
+        ml / (meat_grams / 1000.0)
+    } else {
+        let grams = match system {
+            UnitSystem::Metric => value,
+            UnitSystem::Imperial => value * GRAMS_PER_OZ,
+        };
+        grams / meat_grams
+    }
 }
 
 /// Slice thickness for the cut step, in the chosen unit system (2 cm ≈ ¾ in).
@@ -132,12 +189,13 @@ pub fn format_meat(meat_grams: f64, system: UnitSystem) -> String {
     }
 }
 
-/// The formatted amount of a single ingredient by name (empty string if not found).
+/// The formatted amount of a single ingredient by name (empty string if not found). Used by
+/// the step animations, which show the recipe defaults (no overrides).
 pub fn amount_of(name: &str, meat_grams: f64, system: UnitSystem) -> String {
     INGREDIENTS
         .iter()
         .find(|ing| ing.name == name)
-        .map(|ing| line_for(ing, meat_grams, system).amount)
+        .map(|ing| line_for(ing, meat_grams, system, None).amount())
         .unwrap_or_default()
 }
 
@@ -157,6 +215,10 @@ pub fn spice_blend_amount(meat_grams: f64, system: UnitSystem) -> String {
 mod tests {
     use super::*;
 
+    fn amounts(meat_grams: f64, system: UnitSystem) -> Vec<ResultLine> {
+        compute(meat_grams, system, &Overrides::new())
+    }
+
     #[test]
     fn metric_meat_input_is_kilograms() {
         assert!((meat_to_grams(1.0, UnitSystem::Metric) - 1000.0).abs() < 1e-9);
@@ -172,14 +234,13 @@ mod tests {
     fn reproduces_source_recipe_at_base_weight() {
         // The source quotes its amounts for 4540 g of meat; the calculator must match.
         use crate::recipe::BASE_MEAT_G;
-        let lines = compute(BASE_MEAT_G, UnitSystem::Metric);
+        let lines = amounts(BASE_MEAT_G, UnitSystem::Metric);
         let amount = |name: &str| {
             lines
                 .iter()
                 .find(|l| l.name == name)
                 .unwrap_or_else(|| panic!("missing {name}"))
-                .amount
-                .clone()
+                .amount()
         };
         assert_eq!(amount("Salt"), "102 g");
         assert_eq!(amount("Coriander seed (toasted)"), "68.1 g");
@@ -192,20 +253,20 @@ mod tests {
     #[test]
     fn salt_is_about_2_2_percent_per_kilogram() {
         // Salt is 102 g / 4540 g ~= 2.2%; 1 kg -> ~22.5 g.
-        let lines = compute(meat_to_grams(1.0, UnitSystem::Metric), UnitSystem::Metric);
+        let lines = amounts(meat_to_grams(1.0, UnitSystem::Metric), UnitSystem::Metric);
         assert_eq!(lines[0].name, "Salt");
-        assert_eq!(lines[0].amount, "22.5 g");
+        assert_eq!(lines[0].amount(), "22.5 g");
     }
 
     #[test]
     fn imperial_formats_in_ounces() {
         // 1 lb of meat, salt at ~2.2% -> ~10.2 g -> ~0.4 oz.
-        let lines = compute(
+        let lines = amounts(
             meat_to_grams(1.0, UnitSystem::Imperial),
             UnitSystem::Imperial,
         );
         assert_eq!(lines[0].name, "Salt");
-        assert_eq!(lines[0].amount, "0.4 oz");
+        assert_eq!(lines[0].amount(), "0.4 oz");
     }
 
     #[test]
@@ -213,5 +274,29 @@ mod tests {
         assert_eq!(round1(20.0), "20");
         assert_eq!(round1(20.04), "20");
         assert_eq!(round1(20.05), "20.1");
+    }
+
+    #[test]
+    fn an_override_rescales_with_the_meat_weight() {
+        // Edit salt to 30 g at 1 kg -> a 3% fraction that scales to 60 g at 2 kg.
+        let factor = factor_from_amount(30.0, 1000.0, UnitSystem::Metric, false);
+        let mut ov = Overrides::new();
+        ov.insert("Salt".to_string(), factor);
+        let at1 = compute(1000.0, UnitSystem::Metric, &ov);
+        let at2 = compute(2000.0, UnitSystem::Metric, &ov);
+        assert_eq!(at1[0].amount(), "30 g");
+        assert_eq!(at2[0].amount(), "60 g");
+        assert!(at1[0].overridden);
+    }
+
+    #[test]
+    fn volume_override_round_trips() {
+        // Edit vinegar to 200 ml at 1 kg, then read it back at 1 kg.
+        let factor = factor_from_amount(200.0, 1000.0, UnitSystem::Metric, true);
+        let mut ov = Overrides::new();
+        ov.insert("Red wine vinegar".to_string(), factor);
+        let lines = compute(1000.0, UnitSystem::Metric, &ov);
+        let vin = lines.iter().find(|l| l.name == "Red wine vinegar").unwrap();
+        assert_eq!(vin.amount(), "200 ml");
     }
 }

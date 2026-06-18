@@ -1,8 +1,11 @@
 //! Interactive spice calculator: enter the meat weight, pick a unit system, and every
 //! ingredient is scaled and re-rendered reactively.
 
-use crate::calculator::{compute, meat_to_grams, CalcInput, UnitSystem};
+use crate::calculator::{
+    compute, factor_from_amount, meat_to_grams, CalcInput, Overrides, UnitSystem,
+};
 use dioxus::prelude::*;
+use std::collections::HashMap;
 
 #[component]
 pub fn Calculator() -> Element {
@@ -10,17 +13,26 @@ pub fn Calculator() -> Element {
     let mut input = use_context::<Signal<CalcInput>>();
     // Keep the raw text locally so the field shows exactly what was typed.
     let mut raw = use_signal(|| "1".to_string());
+    // Per-ingredient amount overrides (as scaling factors), and the live text of whichever
+    // ingredient field is being edited (so the field doesn't fight the recomputed value).
+    let mut overrides = use_signal(Overrides::new);
+    let mut edits = use_signal(HashMap::<String, String>::new);
 
-    // Restore the unit and amount persisted from a previous visit (defaults: metric, "1").
+    // Restore the unit, amount and ingredient overrides persisted from a previous visit.
     // Reading happens once on load, before any user action writes, so there's no clobber.
     use_future(move || async move {
         let mut eval = document::eval(
             "dioxus.send([localStorage.getItem('biltong:unit') || '', \
-             localStorage.getItem('biltong:amount') || ''])",
+             localStorage.getItem('biltong:amount') || '', \
+             localStorage.getItem('biltong:overrides') || ''])",
         );
         if let Ok(vals) = eval.recv::<Vec<String>>().await {
             let unit = vals.first().cloned().unwrap_or_default();
             let amount = vals.get(1).cloned().unwrap_or_default();
+            let ov = vals.get(2).cloned().unwrap_or_default();
+            if !ov.is_empty() {
+                overrides.set(parse_overrides(&ov));
+            }
             if !amount.is_empty() {
                 raw.set(amount.clone());
                 input.write().meat_grams = meat_to_grams(parse_amount(&amount), input().system);
@@ -33,7 +45,7 @@ pub fn Calculator() -> Element {
 
     let sys = input().system;
     let amount = parse_amount(&raw());
-    let lines = compute(input().meat_grams, sys);
+    let lines = compute(input().meat_grams, sys, &overrides());
 
     rsx! {
         section { id: "calculator", class: "bg-biltong-50 dark:bg-stone-900 py-16",
@@ -130,21 +142,76 @@ pub fn Calculator() -> Element {
                         }
                     }
 
-                    // Results — exact amount per ingredient, recomputed whenever the
-                    // weight or unit changes.
+                    // Results — each amount is editable; an edit becomes that ingredient's
+                    // custom ratio (remembered), so it keeps scaling with the meat weight.
                     if amount > 0.0 {
                         ul { class: "divide-y divide-biltong-100 dark:divide-stone-700",
                             for line in lines {
-                                li { key: "{line.name}", class: "flex items-baseline justify-between gap-4 py-2.5",
-                                    span { class: "min-w-0",
-                                        span { class: "font-medium text-stone-800 dark:text-stone-100", "{line.name}" }
-                                        if !line.note.is_empty() {
-                                            span { class: "block text-xs text-stone-400 dark:text-stone-500", "{line.note}" }
+                                {
+                                    let name = line.name;
+                                    let is_vol = line.is_volume;
+                                    let shown = edits().get(name).cloned().unwrap_or_else(|| line.value_str());
+                                    rsx! {
+                                        li { key: "{name}", class: "flex items-baseline justify-between gap-4 py-2.5",
+                                            span { class: "min-w-0",
+                                                span { class: "font-medium text-stone-800 dark:text-stone-100", "{name}" }
+                                                if !line.note.is_empty() {
+                                                    span { class: "block text-xs text-stone-400 dark:text-stone-500", "{line.note}" }
+                                                }
+                                            }
+                                            span { class: "flex items-baseline gap-1 shrink-0",
+                                                input {
+                                                    r#type: "number",
+                                                    min: "0",
+                                                    step: "0.1",
+                                                    inputmode: "decimal",
+                                                    "aria-label": "{name} amount",
+                                                    value: "{shown}",
+                                                    class: if line.overridden {
+                                                        "w-16 text-right bg-transparent font-semibold text-biltong-700 dark:text-biltong-300 \
+                                                         border-b border-biltong-400 focus:outline-none focus:border-biltong-600"
+                                                    } else {
+                                                        "w-16 text-right bg-transparent font-semibold text-biltong-700 dark:text-biltong-300 \
+                                                         border-b border-transparent hover:border-biltong-200 dark:hover:border-stone-600 focus:outline-none focus:border-biltong-500"
+                                                    },
+                                                    oninput: move |evt| {
+                                                        let text = evt.value();
+                                                        edits.write().insert(name.to_string(), text.clone());
+                                                        if text.trim().is_empty() {
+                                                            overrides.write().remove(name);
+                                                        } else {
+                                                            let f = factor_from_amount(
+                                                                parse_amount(&text),
+                                                                input().meat_grams,
+                                                                input().system,
+                                                                is_vol,
+                                                            );
+                                                            overrides.write().insert(name.to_string(), f);
+                                                        }
+                                                        persist_overrides(&overrides());
+                                                    },
+                                                    onfocusout: move |_| {
+                                                        edits.write().remove(name);
+                                                    },
+                                                }
+                                                span { class: "text-sm text-stone-500 dark:text-stone-400 w-9", "{line.unit}" }
+                                            }
                                         }
                                     }
-                                    span { class: "font-semibold text-biltong-700 dark:text-biltong-300 whitespace-nowrap",
-                                        "{line.amount}"
-                                    }
+                                }
+                            }
+                        }
+                        if !overrides().is_empty() {
+                            div { class: "mt-3 text-right",
+                                button {
+                                    r#type: "button",
+                                    class: "text-sm font-medium text-biltong-700 dark:text-biltong-300 hover:underline",
+                                    onclick: move |_| {
+                                        overrides.write().clear();
+                                        edits.write().clear();
+                                        persist_overrides(&overrides());
+                                    },
+                                    "↺ Reset to recipe amounts"
                                 }
                             }
                         }
@@ -155,7 +222,7 @@ pub fn Calculator() -> Element {
                     }
                 }
                 p { class: "text-xs text-stone-400 dark:text-stone-500 text-center mt-4",
-                    "Ratios are a starting point — adjust salt and spice to your own taste."
+                    "Tap any amount to tweak it to taste — your edits scale with the weight and are remembered."
                 }
             }
         }
@@ -202,6 +269,33 @@ fn persist_amount(value: &str) {
     document::eval(&format!(
         "try {{ localStorage.setItem('biltong:amount', '{safe}'); }} catch (e) {{}}"
     ));
+}
+
+/// Remember the ingredient overrides as a "name=factor;name=factor" string. Ingredient
+/// names contain no `=`/`;`, so this round-trips cleanly with [`parse_overrides`].
+fn persist_overrides(map: &Overrides) {
+    let joined = map
+        .iter()
+        .map(|(name, factor)| format!("{name}={factor}"))
+        .collect::<Vec<_>>()
+        .join(";");
+    let safe = joined.replace('\\', "\\\\").replace('\'', "\\'");
+    document::eval(&format!(
+        "try {{ localStorage.setItem('biltong:overrides', '{safe}'); }} catch (e) {{}}"
+    ));
+}
+
+/// Parse the persisted "name=factor;…" string back into an overrides map.
+fn parse_overrides(stored: &str) -> Overrides {
+    let mut map = Overrides::new();
+    for part in stored.split(';') {
+        if let Some((name, factor)) = part.rsplit_once('=') {
+            if let Ok(f) = factor.parse::<f64>() {
+                map.insert(name.to_string(), f);
+            }
+        }
+    }
+    map
 }
 
 /// Switch unit system, re-deriving the stored grams from the current raw input, and
