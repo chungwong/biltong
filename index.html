@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="preload">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -32,8 +32,7 @@
     <style>
       /* FOUC guard. Hide <body> by default; the Tailwind stylesheet (injected at runtime by
          Dioxus) ends with `body { visibility: visible }`, so the page reveals exactly when
-         the styles apply — a stylesheet applies atomically, so there's no race and no flash.
-         The themed page background sits on <html> so it paints while the body is hidden. */
+         the styles apply. The themed background sits on <html> so it paints while hidden. */
       html {
         background-color: #fdf6f0;
       }
@@ -43,12 +42,40 @@
       body {
         visibility: hidden;
       }
+      /* While loading, suppress transitions so styled values (e.g. the nav link colour)
+         snap in instead of animating from the browser default (blue link → cream). */
+      html.preload *,
+      html.preload *::before,
+      html.preload *::after {
+        transition: none !important;
+      }
     </style>
     <script>
-      // Safety net: never keep the page hidden if the stylesheet somehow fails to load.
-      setTimeout(function () {
-        if (document.body) document.body.style.visibility = "visible";
-      }, 8000);
+      // Re-enable transitions once the stylesheet has applied (detected by <body> becoming
+      // visible via the stylesheet's own rule), with a safety net so the page is never
+      // stuck hidden if the stylesheet fails to load.
+      (function () {
+        var de = document.documentElement;
+        function check() {
+          if (
+            document.body &&
+            getComputedStyle(document.body).visibility === "visible"
+          ) {
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                de.classList.remove("preload");
+              });
+            });
+          } else {
+            requestAnimationFrame(check);
+          }
+        }
+        requestAnimationFrame(check);
+        setTimeout(function () {
+          if (document.body) document.body.style.visibility = "visible";
+          de.classList.remove("preload");
+        }, 8000);
+      })();
     </script>
   </head>
   <body>
@@ -96,7 +123,9 @@
               document.documentElement.scrollHeight >=
               target + window.innerHeight - 1;
             if (ready || tries++ > 180) {
-              window.scrollTo(0, target);
+              // Jump straight there — never animate the restore (html has scroll-behavior:
+              // smooth for in-page anchor clicks, which we don't want on refresh).
+              window.scrollTo({ top: target, left: 0, behavior: "instant" });
             } else {
               requestAnimationFrame(tick);
             }
