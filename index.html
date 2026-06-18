@@ -47,14 +47,17 @@
       }
     </style>
     <script>
-      // Reveal the app once a Tailwind theme variable resolves (i.e. the stylesheet is
-      // loaded), with a timed fallback so we never hide the page indefinitely.
+      // Reveal the app only once a Tailwind *utility* has actually applied (not just a
+      // theme variable, which resolves earlier in the stylesheet). We probe an off-screen
+      // element carrying `bg-biltong-900` and wait for its computed colour to match.
       (function () {
         function styled() {
-          var v = getComputedStyle(document.documentElement).getPropertyValue(
-            "--color-biltong-700"
-          );
-          return v && v.trim() !== "";
+          var p = document.getElementById("fouc-probe");
+          if (!p) return false;
+          // The probe carries bg-biltong-900; until the utility applies its background is
+          // transparent. Any opaque background means the utility layer is in effect.
+          var c = getComputedStyle(p).backgroundColor;
+          return c && c !== "rgba(0, 0, 0, 0)" && c !== "transparent";
         }
         var tries = 0;
         (function check() {
@@ -68,6 +71,12 @@
     </script>
   </head>
   <body>
+    <div
+      id="fouc-probe"
+      class="bg-biltong-900"
+      aria-hidden="true"
+      style="position: fixed; top: 0; left: 0; width: 0; height: 0; overflow: hidden"
+    ></div>
     <div id="main"></div>
     <script>
       // Scroll restoration for the WASM SPA. The browser's automatic restore runs before
