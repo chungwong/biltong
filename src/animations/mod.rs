@@ -433,35 +433,33 @@ fn SpiceArt() -> Element {
 fn CureArt() -> Element {
     rsx! {
         ArtFrame {
-            // zip-lock bag (translucent plastic)
-            rect { x: "44", y: "44", width: "78", height: "76", rx: "10", fill: "#e8f1f8",
+            // open zip-lock bag being filled (translucent plastic)
+            rect { x: "44", y: "50", width: "78", height: "70", rx: "10", fill: "#e8f1f8",
                 stroke: "#93b4cb", stroke_width: "2" }
-            // zip seal + slider
-            line { x1: "48", y1: "51", x2: "118", y2: "51", stroke: "#7aa3c0", stroke_width: "1.5" }
-            line { x1: "48", y1: "54", x2: "118", y2: "54", stroke: "#7aa3c0", stroke_width: "1.5" }
-            rect { x: "112", y: "49", width: "8", height: "7", rx: "1.5", fill: "#7aa3c0" }
-            // spiced biltong strips already in the bag
-            for y in [74.0_f64, 88.0, 102.0] {
-                MeatStrip { key: "strip{y}", cx: 81.0, cy: y + 4.5, hl: 27.0, ht: 4.5 }
+            // spiced biltong strips already piled in the bag
+            for cy in [84.0_f64, 98.0, 112.0] {
+                MeatStrip { key: "pile{cy}", cx: 83.0, cy, hl: 27.0, ht: 4.5 }
             }
             // spice flecks
             for (i , (x , y)) in [
-                (66.0_f64, 70.0_f64),
-                (92.0, 82.0),
-                (100.0, 96.0),
-                (62.0, 98.0),
-                (86.0, 72.0),
+                (66.0_f64, 80.0_f64),
+                (96.0, 90.0),
+                (70.0, 106.0),
+                (100.0, 104.0),
+                (84.0, 92.0),
             ]
                 .into_iter()
                 .enumerate()
             {
                 circle { key: "fleck{i}", cx: "{x}", cy: "{y}", r: "1.5", fill: "#b45309" }
             }
-            // strips dropping into the bag (animated, staggered)
-            for (i , x) in [72.0_f64, 88.0].into_iter().enumerate() {
-                g { key: "drop{i}", class: "anim-drop", style: "animation-delay: {i as f64 * 1.0}s",
-                    MeatStrip { cx: x, cy: 32.0, hl: 20.0, ht: 4.5 }
-                }
+            // open mouth: splayed top edges + the rim
+            line { x1: "45", y1: "50", x2: "38", y2: "40", stroke: "#93b4cb", stroke_width: "2", stroke_linecap: "round" }
+            line { x1: "121", y1: "50", x2: "128", y2: "40", stroke: "#93b4cb", stroke_width: "2", stroke_linecap: "round" }
+            ellipse { cx: "83", cy: "50", rx: "39", ry: "6", fill: "#cfe0ef", stroke: "#93b4cb", stroke_width: "2" }
+            // a slice being placed in — descends through the mouth and settles on the pile
+            g { class: "anim-place",
+                MeatStrip { cx: 83.0, cy: 80.0, hl: 27.0, ht: 4.5 }
             }
             // cure time — compact clock + caption on the right
             circle { cx: "160", cy: "58", r: "22", fill: "#fdf6f0", stroke: "#4a1505", stroke_width: "3" }

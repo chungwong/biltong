@@ -173,6 +173,25 @@ html {
   }
 }
 
+@keyframes biltong-place {
+  0% {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  60%,
+  80% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+}
+
 @keyframes biltong-shine {
   0%,
   100% {
@@ -214,6 +233,9 @@ html {
 }
 .anim-fan-in {
   animation: biltong-fan-in 4s ease-in-out infinite;
+}
+.anim-place {
+  animation: biltong-place 3s ease-in infinite;
 }
 .anim-shine {
   animation: biltong-shine 3s ease-in-out infinite;
