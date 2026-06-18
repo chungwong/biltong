@@ -125,11 +125,22 @@ fn line_for(
             }
         }
         Measure::VolumePerKg(ml_per_kg) => {
-            let ml = meat_grams / 1000.0 * override_factor.unwrap_or(ml_per_kg);
-            match system {
-                UnitSystem::Metric => (ml, "ml", true, ing.note.to_string()),
-                UnitSystem::Imperial => (ml / ML_PER_FLOZ, "fl oz", true, ing.note.to_string()),
-            }
+            let factor = override_factor.unwrap_or(ml_per_kg);
+            let ml = meat_grams / 1000.0 * factor;
+            // Volumes have no weight %, so show the equivalent live ratio: volume per meat
+            // unit (ml/kg, or fl oz/lb), in the current units.
+            let per_meat_unit_ml = factor * (meat_to_grams(1.0, system) / 1000.0);
+            let (value, unit, ratio) = match system {
+                UnitSystem::Metric => (ml, "ml", per_meat_unit_ml),
+                UnitSystem::Imperial => (ml / ML_PER_FLOZ, "fl oz", per_meat_unit_ml / ML_PER_FLOZ),
+            };
+            let ratio = format!("~{} {}/{}", round1(ratio), unit, system.meat_unit());
+            let note = if ing.note.is_empty() {
+                ratio
+            } else {
+                format!("{} ({})", ing.note, ratio)
+            };
+            (value, unit, true, note)
         }
     };
     ResultLine {
