@@ -23,36 +23,53 @@ pub fn Steps() -> Element {
     }
 }
 
-/// Scroll-spy that reports the index of the step nearest the middle of the viewport, so the
-/// anchor rail can highlight it. Uses an `IntersectionObserver` with a thin band near the
-/// top-centre; whenever a step enters that band it posts its index back to Rust.
+/// Scroll-spy for the anchor rail. A first observer reports the step nearest the middle of
+/// the viewport (a thin band near the top-centre) so the rail can highlight it; a second
+/// observer tracks whether the steps section is on screen at all, sending `-1` to hide the
+/// rail (so it never floats over the hero/footer, whose dark background matches the marker).
 const SCROLL_SPY_JS: &str = r#"
-    let current = -1;
-    const send = (i) => { if (i !== current) { current = i; dioxus.send(i); } };
-    const obs = new IntersectionObserver((entries) => {
+    let active = 0;
+    const band = new IntersectionObserver((entries) => {
         for (const e of entries) {
-            if (e.isIntersecting) send(parseInt(e.target.dataset.step, 10));
+            if (e.isIntersecting) { active = parseInt(e.target.dataset.step, 10); dioxus.send(active); }
         }
     }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
-    document.querySelectorAll('[data-step]').forEach((el) => obs.observe(el));
+    document.querySelectorAll('[data-step]').forEach((el) => band.observe(el));
+
+    const section = document.getElementById('steps');
+    const vis = new IntersectionObserver((entries) => {
+        for (const e of entries) { dioxus.send(e.isIntersecting ? active : -1); }
+    }, { threshold: 0 });
+    if (section) vis.observe(section);
 "#;
 
-/// Ant-Design-style anchor: a fixed vertical rail (wide screens only) that lists the steps
-/// and highlights whichever is currently in view; clicking jumps to that step.
+/// Ant-Design-style anchor: a vertical rail (numbered dots, with step titles on wide
+/// screens) that highlights the step currently in view and jumps to it on click. It is
+/// shown only while the steps section is on screen.
 #[component]
 fn StepAnchor() -> Element {
     let mut active = use_signal(|| 0usize);
+    let mut visible = use_signal(|| false);
     use_future(move || async move {
         let mut eval = document::eval(SCROLL_SPY_JS);
         while let Ok(i) = eval.recv::<i64>().await {
-            active.set(i.max(0) as usize);
+            if i < 0 {
+                visible.set(false);
+            } else {
+                visible.set(true);
+                active.set(i as usize);
+            }
         }
     });
 
     rsx! {
         nav {
             "aria-label": "Steps",
-            class: "fixed right-2 sm:right-3 top-1/2 -translate-y-1/2 z-40",
+            class: if visible() {
+                "fixed right-2 sm:right-3 top-1/2 -translate-y-1/2 z-40 transition-opacity duration-300 opacity-100"
+            } else {
+                "fixed right-2 sm:right-3 top-1/2 -translate-y-1/2 z-40 transition-opacity duration-300 opacity-0 pointer-events-none"
+            },
             ul { class: "flex flex-col gap-1.5 items-end",
                 for (i , step) in STEPS.iter().enumerate() {
                     li { key: "{i}",
