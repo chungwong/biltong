@@ -103,6 +103,9 @@ pub struct Ingredient {
     pub name: &'static str,
     pub measure: Measure,
     pub note: &'static str,
+    /// If true, the note is generated dynamically as "~X% of meat weight" from the current
+    /// (possibly overridden) ratio instead of using `note`.
+    pub percent: bool,
 }
 
 /// The meat weight (grams) the source recipe's amounts are quoted for.
@@ -113,31 +116,37 @@ pub const INGREDIENTS: &[Ingredient] = &[
     Ingredient {
         name: "Salt",
         measure: Measure::WeightFraction(102.0 / BASE_MEAT_G),
-        note: "~2.2% of meat weight",
+        note: "",
+        percent: true,
     },
     Ingredient {
         name: "Coriander seed (toasted)",
         measure: Measure::WeightFraction(68.1 / BASE_MEAT_G),
         note: "the signature biltong spice",
+        percent: false,
     },
     Ingredient {
         name: "Peppercorns",
         measure: Measure::WeightFraction(34.0 / BASE_MEAT_G),
         note: "coarsely ground",
+        percent: false,
     },
     Ingredient {
         name: "Chili flakes",
         measure: Measure::WeightFraction(22.7 / BASE_MEAT_G),
         note: "optional, for heat",
+        percent: false,
     },
     Ingredient {
         name: "Red wine vinegar",
         measure: Measure::VolumePerKg(120.0 / (BASE_MEAT_G / 1000.0)),
         note: "for the bath",
+        percent: false,
     },
     Ingredient {
         name: "Worcestershire sauce",
         measure: Measure::VolumePerKg(60.0 / (BASE_MEAT_G / 1000.0)),
         note: "for the bath",
+        percent: false,
     },
 ];

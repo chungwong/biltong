@@ -60,7 +60,7 @@ pub struct ResultLine {
     pub name: &'static str,
     pub value: f64,
     pub unit: &'static str,
-    pub note: &'static str,
+    pub note: String,
     pub is_volume: bool,
     pub overridden: bool,
 }
@@ -108,19 +108,26 @@ fn line_for(
     system: UnitSystem,
     override_factor: Option<f64>,
 ) -> ResultLine {
-    let (value, unit, is_volume) = match ing.measure {
+    let (value, unit, is_volume, note) = match ing.measure {
         Measure::WeightFraction(fraction) => {
-            let grams = meat_grams * override_factor.unwrap_or(fraction);
+            let frac = override_factor.unwrap_or(fraction);
+            let grams = meat_grams * frac;
+            // Salt (and any `percent` ingredient) shows its live ratio, not a fixed string.
+            let note = if ing.percent {
+                format!("~{}% of meat weight", round1(frac * 100.0))
+            } else {
+                ing.note.to_string()
+            };
             match system {
-                UnitSystem::Metric => (grams, "g", false),
-                UnitSystem::Imperial => (grams / GRAMS_PER_OZ, "oz", false),
+                UnitSystem::Metric => (grams, "g", false, note),
+                UnitSystem::Imperial => (grams / GRAMS_PER_OZ, "oz", false, note),
             }
         }
         Measure::VolumePerKg(ml_per_kg) => {
             let ml = meat_grams / 1000.0 * override_factor.unwrap_or(ml_per_kg);
             match system {
-                UnitSystem::Metric => (ml, "ml", true),
-                UnitSystem::Imperial => (ml / ML_PER_FLOZ, "fl oz", true),
+                UnitSystem::Metric => (ml, "ml", true, ing.note.to_string()),
+                UnitSystem::Imperial => (ml / ML_PER_FLOZ, "fl oz", true, ing.note.to_string()),
             }
         }
     };
@@ -128,7 +135,7 @@ fn line_for(
         name: ing.name,
         value,
         unit,
-        note: ing.note,
+        note,
         is_volume,
         overridden: override_factor.is_some(),
     }
