@@ -186,11 +186,10 @@ html {
     opacity: 1;
   }
   12%,
-  86% {
+  90% {
     transform: translateY(0);
     opacity: 1;
   }
-  98%,
   100% {
     transform: translateY(0);
     opacity: 0;
@@ -206,11 +205,10 @@ html {
     opacity: 1;
   }
   26%,
-  86% {
+  90% {
     transform: translateY(0);
     opacity: 1;
   }
-  98%,
   100% {
     transform: translateY(0);
     opacity: 0;
@@ -226,11 +224,10 @@ html {
     opacity: 1;
   }
   40%,
-  86% {
+  90% {
     transform: translateY(0);
     opacity: 1;
   }
-  98%,
   100% {
     transform: translateY(0);
     opacity: 0;
@@ -246,14 +243,56 @@ html {
     opacity: 1;
   }
   54%,
-  86% {
+  90% {
     transform: translateY(0);
     opacity: 1;
   }
-  98%,
   100% {
     transform: translateY(0);
     opacity: 0;
+  }
+}
+
+/* Zip the bag shut once the slices are stacked (~58–72% of the cycle): the open mouth fades
+   out, the sealed zip line grows in from the left, and the slider slides across — then it
+   reopens on reset. All share the 5s stack period so they stay in sync. */
+@keyframes biltong-zip-open {
+  0%,
+  58% {
+    opacity: 1;
+  }
+  72%,
+  92% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes biltong-zip-seal {
+  0%,
+  58% {
+    transform: scaleX(0);
+  }
+  72%,
+  92% {
+    transform: scaleX(1);
+  }
+  100% {
+    transform: scaleX(0);
+  }
+}
+@keyframes biltong-zip-slide {
+  0%,
+  58% {
+    transform: translateX(0);
+  }
+  72%,
+  92% {
+    transform: translateX(64px);
+  }
+  100% {
+    transform: translateX(0);
   }
 }
 
@@ -311,6 +350,17 @@ html {
 .anim-stack4 {
   animation: biltong-stack4 5s ease-in infinite;
 }
+.anim-zip-open {
+  animation: biltong-zip-open 5s ease-in-out infinite;
+}
+.anim-zip-seal {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: biltong-zip-seal 5s ease-in-out infinite;
+}
+.anim-zip-slide {
+  animation: biltong-zip-slide 5s ease-in-out infinite;
+}
 .anim-shine {
   animation: biltong-shine 3s ease-in-out infinite;
 }
@@ -329,6 +379,9 @@ html {
   .anim-stack2,
   .anim-stack3,
   .anim-stack4,
+  .anim-zip-open,
+  .anim-zip-seal,
+  .anim-zip-slide,
   .anim-shine {
     animation: none !important;
   }

@@ -451,12 +451,20 @@ fn CureArt() -> Element {
                     MeatStrip { cx: 83.0, cy, hl: 27.0, ht: 4.5 }
                 }
             }
-            // open mouth: parted flaps, rim, zip teeth + slider (in front, so slices pass in)
-            line { x1: "45", y1: "52", x2: "39", y2: "44", stroke: "#93b4cb", stroke_width: "2", stroke_linecap: "round" }
-            line { x1: "121", y1: "52", x2: "127", y2: "44", stroke: "#93b4cb", stroke_width: "2", stroke_linecap: "round" }
-            ellipse { cx: "83", cy: "52", rx: "39", ry: "6", fill: "#cfe0ef", stroke: "#93b4cb", stroke_width: "2" }
-            ellipse { cx: "83", cy: "52", rx: "39", ry: "6", fill: "none", stroke: "#7aa3c0", stroke_width: "2", stroke_dasharray: "2 2" }
-            rect { x: "118", y: "49", width: "8", height: "6", rx: "1.5", fill: "#7aa3c0" }
+            // open mouth (fades out as the bag zips shut): parted flaps, rim, zip teeth
+            g { class: "anim-zip-open",
+                line { x1: "45", y1: "52", x2: "39", y2: "44", stroke: "#93b4cb", stroke_width: "2", stroke_linecap: "round" }
+                line { x1: "121", y1: "52", x2: "127", y2: "44", stroke: "#93b4cb", stroke_width: "2", stroke_linecap: "round" }
+                ellipse { cx: "83", cy: "52", rx: "39", ry: "6", fill: "#cfe0ef", stroke: "#93b4cb", stroke_width: "2" }
+                ellipse { cx: "83", cy: "52", rx: "39", ry: "6", fill: "none", stroke: "#7aa3c0", stroke_width: "2", stroke_dasharray: "2 2" }
+            }
+            // sealed zip line — grows in from the left as the slider passes
+            g { class: "anim-zip-seal",
+                line { x1: "46", y1: "50", x2: "120", y2: "50", stroke: "#7aa3c0", stroke_width: "2" }
+                line { x1: "46", y1: "53", x2: "120", y2: "53", stroke: "#7aa3c0", stroke_width: "2" }
+            }
+            // zipper slider, sliding across to seal the bag
+            rect { class: "anim-zip-slide", x: "44", y: "48", width: "8", height: "7", rx: "1.5", fill: "#5b8bb0" }
             // cure time — compact clock + caption on the right
             circle { cx: "160", cy: "58", r: "22", fill: "#fdf6f0", stroke: "#4a1505", stroke_width: "3" }
             circle { cx: "160", cy: "58", r: "2.5", fill: "#4a1505" }
