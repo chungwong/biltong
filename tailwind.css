@@ -175,14 +175,17 @@ html {
 
 @keyframes biltong-stack {
   0% {
-    transform: translateY(-14px);
+    transform: translateY(var(--from, -40px));
     opacity: 0;
   }
-  15% {
+  6% {
+    opacity: 1;
+  }
+  35% {
     transform: translateY(0);
     opacity: 1;
   }
-  88% {
+  90% {
     transform: translateY(0);
     opacity: 1;
   }
@@ -235,7 +238,7 @@ html {
   animation: biltong-fan-in 4s ease-in-out infinite;
 }
 .anim-stack {
-  animation: biltong-stack 4.5s ease-out infinite;
+  animation: biltong-stack 4.5s ease-in infinite backwards;
 }
 .anim-shine {
   animation: biltong-shine 3s ease-in-out infinite;

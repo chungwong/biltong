@@ -433,32 +433,38 @@ fn SpiceArt() -> Element {
 fn CureArt() -> Element {
     rsx! {
         ArtFrame {
-            // zip-lock bag (translucent plastic)
-            rect { x: "44", y: "44", width: "78", height: "76", rx: "10", fill: "#e8f1f8",
+            // open zip-lock bag (translucent), being filled
+            rect { x: "44", y: "52", width: "78", height: "68", rx: "9", fill: "#e8f1f8",
                 stroke: "#93b4cb", stroke_width: "2" }
-            // zip seal + slider
-            line { x1: "48", y1: "51", x2: "118", y2: "51", stroke: "#7aa3c0", stroke_width: "1.5" }
-            line { x1: "48", y1: "54", x2: "118", y2: "54", stroke: "#7aa3c0", stroke_width: "1.5" }
-            rect { x: "112", y: "49", width: "8", height: "7", rx: "1.5", fill: "#7aa3c0" }
-            // slices stacking up in the bag: the first, then three more settle on top
-            for (i , cy) in [110.0_f64, 96.0, 82.0, 68.0].into_iter().enumerate() {
-                g { key: "stack{i}", class: "anim-stack", style: "animation-delay: {i as f64 * 0.6}s",
-                    MeatStrip { cx: 83.0, cy, hl: 27.0, ht: 4.5 }
-                }
-            }
-            // spice flecks scattered over the stack
+            // spice flecks on the bag floor / between slices
             for (i , (x , y)) in [
-                (66.0_f64, 88.0_f64),
-                (98.0, 78.0),
-                (72.0, 104.0),
-                (100.0, 100.0),
-                (84.0, 92.0),
+                (66.0_f64, 92.0_f64),
+                (98.0, 86.0),
+                (72.0, 108.0),
+                (100.0, 104.0),
+                (84.0, 98.0),
             ]
                 .into_iter()
                 .enumerate()
             {
                 circle { key: "fleck{i}", cx: "{x}", cy: "{y}", r: "1.5", fill: "#b45309" }
             }
+            // slices entering from outside through the opening and stacking up: the first,
+            // then three more — each descends from above the mouth onto the pile
+            for (i , cy) in [110.0_f64, 99.0, 88.0, 77.0].into_iter().enumerate() {
+                g {
+                    key: "stack{i}",
+                    class: "anim-stack",
+                    style: "--from: {24.0 - cy}px; animation-delay: {i as f64 * 0.6}s",
+                    MeatStrip { cx: 83.0, cy, hl: 27.0, ht: 4.5 }
+                }
+            }
+            // open mouth: parted flaps, rim, zip teeth + slider (in front, so slices pass in)
+            line { x1: "45", y1: "52", x2: "39", y2: "44", stroke: "#93b4cb", stroke_width: "2", stroke_linecap: "round" }
+            line { x1: "121", y1: "52", x2: "127", y2: "44", stroke: "#93b4cb", stroke_width: "2", stroke_linecap: "round" }
+            ellipse { cx: "83", cy: "52", rx: "39", ry: "6", fill: "#cfe0ef", stroke: "#93b4cb", stroke_width: "2" }
+            ellipse { cx: "83", cy: "52", rx: "39", ry: "6", fill: "none", stroke: "#7aa3c0", stroke_width: "2", stroke_dasharray: "2 2" }
+            rect { x: "118", y: "49", width: "8", height: "6", rx: "1.5", fill: "#7aa3c0" }
             // cure time — compact clock + caption on the right
             circle { cx: "160", cy: "58", r: "22", fill: "#fdf6f0", stroke: "#4a1505", stroke_width: "3" }
             circle { cx: "160", cy: "58", r: "2.5", fill: "#4a1505" }
