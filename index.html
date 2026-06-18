@@ -15,6 +15,20 @@
       content="Step-by-step biltong guide with an ingredient calculator."
     />
     <meta property="og:type" content="website" />
+    <script>
+      // Apply the saved (or system) colour theme before first paint so there's no flash.
+      (function () {
+        try {
+          var t = localStorage.getItem("biltong:theme");
+          if (
+            t === "dark" ||
+            (!t && matchMedia("(prefers-color-scheme: dark)").matches)
+          ) {
+            document.documentElement.classList.add("dark");
+          }
+        } catch (e) {}
+      })();
+    </script>
     <style>
       /* Avoid a flash of unstyled content: keep the app hidden until the Tailwind
          stylesheet (injected by Dioxus after the WASM app boots) has actually applied. */
@@ -23,6 +37,13 @@
       }
       html.app-ready #main {
         visibility: visible;
+      }
+      /* Match the app's page background pre-boot so there's no light flash in dark mode. */
+      body {
+        background-color: #fdf6f0;
+      }
+      html.dark body {
+        background-color: #1c1917;
       }
     </style>
     <script>

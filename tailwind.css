@@ -18,6 +18,10 @@
   --font-display: "Georgia", "Times New Roman", serif;
 }
 
+/* Manual dark mode: the `dark:` variant responds to a `.dark` class on <html>
+   (toggled by the theme switcher and the no-flash init script in index.html). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Offset anchor jumps so section headings clear the sticky nav bar (h-14 = 3.5rem). */
 html {
   scroll-padding-top: 4rem;

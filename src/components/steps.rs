@@ -11,7 +11,7 @@ pub fn Steps() -> Element {
     rsx! {
         section { id: "steps", class: "max-w-4xl mx-auto px-6 py-16",
             StepAnchor {}
-            h2 { class: "font-display text-3xl font-bold text-biltong-700 text-center mb-12",
+            h2 { class: "font-display text-3xl font-bold text-biltong-700 dark:text-biltong-300 text-center mb-12",
                 "The Steps"
             }
             div { class: "flex flex-col gap-10",
@@ -81,7 +81,7 @@ fn StepAnchor() -> Element {
                             // label — only on wide screens
                             span {
                                 class: if active() == i {
-                                    "hidden xl:block text-sm max-w-[11rem] truncate transition-colors text-biltong-700 font-semibold"
+                                    "hidden xl:block text-sm max-w-[11rem] truncate transition-colors text-biltong-700 dark:text-biltong-300 font-semibold"
                                 } else {
                                     "hidden xl:block text-sm max-w-[11rem] truncate transition-colors text-stone-400 group-hover:text-biltong-600"
                                 },
@@ -132,9 +132,9 @@ fn StepCard(index: usize, step: &'static Step) -> Element {
         article {
             id: "step-{index}",
             "data-step": "{index}",
-            class: "grid sm:grid-cols-2 gap-6 items-center bg-white rounded-2xl \
-                    shadow-sm ring-1 ring-biltong-100 p-6 scroll-mt-20",
-            div { class: "bg-biltong-50 rounded-xl p-2 {media_order}",
+            class: "grid sm:grid-cols-2 gap-6 items-center bg-white dark:bg-stone-800 rounded-2xl \
+                    shadow-sm ring-1 ring-biltong-100 dark:ring-stone-700 p-6 scroll-mt-20",
+            div { class: "bg-biltong-50 dark:bg-stone-900 rounded-xl p-2 {media_order}",
                 StepArt { kind: step.anim }
             }
             div { class: "{text_order}",
@@ -143,11 +143,11 @@ fn StepCard(index: usize, step: &'static Step) -> Element {
                                    bg-biltong-700 text-biltong-50 font-bold",
                         "{index + 1}"
                     }
-                    h3 { class: "font-display text-2xl font-semibold text-biltong-900",
+                    h3 { class: "font-display text-2xl font-semibold text-biltong-900 dark:text-biltong-100",
                         "{step.title}"
                     }
                 }
-                p { class: "text-stone-600 leading-relaxed", "{body}" }
+                p { class: "text-stone-600 dark:text-stone-300 leading-relaxed", "{body}" }
             }
         }
     }

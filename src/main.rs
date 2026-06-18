@@ -24,7 +24,7 @@ fn App() -> Element {
         document::Link { rel: "icon", r#type: "image/svg+xml", href: FAVICON }
         document::Stylesheet { href: TAILWIND_CSS }
 
-        div { class: "min-h-screen bg-biltong-50 text-stone-800",
+        div { class: "min-h-screen bg-biltong-50 text-stone-800 dark:bg-stone-900 dark:text-stone-200",
             NavBar {}
             Hero {}
             main {

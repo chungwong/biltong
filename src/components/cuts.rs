@@ -162,10 +162,10 @@ pub fn CutDiagram() -> Element {
 
     rsx! {
         section { id: "cuts", class: "max-w-4xl mx-auto px-6 py-16",
-            h2 { class: "font-display text-3xl font-bold text-biltong-700 text-center mb-3",
+            h2 { class: "font-display text-3xl font-bold text-biltong-700 dark:text-biltong-300 text-center mb-3",
                 "Which cut of beef?"
             }
-            p { class: "text-center text-stone-600 mb-8 max-w-xl mx-auto",
+            p { class: "text-center text-stone-600 dark:text-stone-300 mb-8 max-w-xl mx-auto",
                 "Lean cuts from the hindquarter make the best biltong. Tap a cut to see \
                  whether it works."
             }
@@ -206,8 +206,8 @@ pub fn CutDiagram() -> Element {
                 }
 
                 // --- info panel ---
-                div { class: "bg-white rounded-2xl shadow-sm ring-1 ring-biltong-100 p-6",
-                    h3 { class: "font-display text-2xl font-semibold text-biltong-900 mb-3",
+                div { class: "bg-white dark:bg-stone-800 rounded-2xl shadow-sm ring-1 ring-biltong-100 dark:ring-stone-700 p-6",
+                    h3 { class: "font-display text-2xl font-semibold text-biltong-900 dark:text-biltong-100 mb-3",
                         "{cut.name}"
                     }
                     match cut.rating {
@@ -222,17 +222,17 @@ pub fn CutDiagram() -> Element {
                             }
                         },
                         Rating::Poor => rsx! {
-                            span { class: "inline-block px-3 py-1 rounded-full text-sm font-semibold bg-stone-200 text-stone-600",
+                            span { class: "inline-block px-3 py-1 rounded-full text-sm font-semibold bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300",
                                 "Not ideal"
                             }
                         },
                     }
-                    p { class: "text-stone-600 leading-relaxed mt-3", "{cut.note}" }
+                    p { class: "text-stone-600 dark:text-stone-300 leading-relaxed mt-3", "{cut.note}" }
                 }
             }
 
             // legend
-            div { class: "flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-8 text-sm text-stone-600",
+            div { class: "flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-8 text-sm text-stone-600 dark:text-stone-300",
                 span { class: "flex items-center gap-2",
                     span { class: "inline-block w-4 h-4 rounded", style: "background:#9caf88" }
                     "Good for biltong"

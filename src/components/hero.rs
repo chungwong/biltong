@@ -5,7 +5,7 @@ use dioxus::prelude::*;
 #[component]
 pub fn Hero() -> Element {
     rsx! {
-        header { id: "top", class: "bg-biltong-700 text-biltong-50",
+        header { id: "top", class: "bg-biltong-700 dark:bg-biltong-900 text-biltong-50",
             div { class: "max-w-3xl mx-auto px-6 py-16 sm:py-20 text-center",
                 p { class: "uppercase tracking-widest text-sm text-biltong-300 mb-3",
                     "South African dried beef"
